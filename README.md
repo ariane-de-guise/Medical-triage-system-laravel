@@ -6,10 +6,10 @@
 5. Cloner le projet GitHub : git clone git@github.com:infocstjean/tp1-flavy.git
 6. Mettre le raccourci sail dans ton .bashrc : Faire nano ~/.bashrc, ensuite inserer cela à l'aide de CTRL 0, alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail' Pour sauvegarder faire CTRL X.
 7. Ensuite faire composer install : si pas installer : 
-sudo apt update
-sudo apt install composer
-sudo apt update
-sudo apt install php-xml
+sudo apt update,
+sudo apt install composer,
+sudo apt update,
+sudo apt install php-xml,
 composer install
 8. Faire : lancer docker desktop et faire sail up
 Si celui dit encore Docker is not running : faire sudo usermod -aG docker $USER, ensuite fermer la page et l'ouvrir
