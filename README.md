@@ -16,4 +16,4 @@ Si celui dit encore Docker is not running : faire sudo usermod -aG docker $USER,
 9. Faire : sail artisan migrate
 10. Pour les tests faire sail artisan migrate --seed
 11. Faire sail npm install
-12. sail npm run build
+12. sail npm run dev
