@@ -52,16 +52,13 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function compte()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Compte::class);
+    }
+
+    public function diagnostiques()
+    {
+        return $this->hasMany(Diagnostique::class, 'patient_id');
     }
 }
