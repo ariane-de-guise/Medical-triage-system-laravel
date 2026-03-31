@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nom');
             $table->string('prenom');
             $table->date('date_naissance');
-            $table->integer('type');
+            $table->foreignIdFor(\Spatie\Permission\Models\Role::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

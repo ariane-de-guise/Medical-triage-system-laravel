@@ -17,7 +17,7 @@ class CompteFactory extends Factory
             'nom' => fake()->lastName(),
             'prenom' => fake()->firstName(),
             'date_naissance' => fake()->date(),
-            'type' => fake()->randomElement([0, 1]), // 0 = patient, 1 = doctor
+            'role_id' => fake()->randomElement([1, 4]), // 0 = patient, 1 = doctor
         ];
     }
 }
