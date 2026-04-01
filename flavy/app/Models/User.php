@@ -59,10 +59,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(Compte::class);
     }
-    public function roles(): BelongsToMany
-    {
-        return $this->BelongsToMany(Role::class, 'roles');
-    }
 
     public function diagnostiques()
     {

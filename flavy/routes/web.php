@@ -7,40 +7,80 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-/** require __DIR__.'/settings.php';
-require __DIR__.'/auth.php'; */
+// ⚠️ IMPORTANT : activer l’auth
+//require __DIR__.'/auth.php';
+//require __DIR__.'/settings.php';
 
-// Routes protégées par Jetstream / Sanctum
+// Routes protégées (Jetstream + Sanctum)
+use App\Http\Controllers\Auth\RegisteredUserController;
+
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
 
-    // Dashboard général
+    // Dashboard
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $user = \App\Models\User::find(auth()->user()->id);
+        return view('dashboard', compact('user'));
     })->name('dashboard');
 
-    // Pages par rôle
-    Route::get('/admin', function () {
-        return view('admin');
-    })->middleware('role:admin');
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin', function () {
+            return view('admin');
+        })->name('admin');
+    });
 
-    Route::get('/medecin', function () {
-        return view('medecin');
-    })->middleware('role:medecin');
+    /*
+    |--------------------------------------------------------------------------
+    | MEDECIN
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:medecin'])->group(function () {
+        Route::get('/medecin', function () {
+            return view('medecin');
+        })->name('medecin');
+    });
 
-    Route::get('/infirmier', function () {
-        return view('infirmier');
-    })->middleware('role:infirmier');
+    /*
+    |--------------------------------------------------------------------------
+    | INFIRMIER
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:infirmier'])->group(function () {
+        Route::get('/infirmier', function () {
+            return view('infirmier');
+        })->name('infirmier');
+    });
 
-    Route::get('/patient', function () {
-        return view('patient');
-    })->middleware('role:patient');
+    /*
+    |--------------------------------------------------------------------------
+    | PATIENT
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:patient'])->group(function () {
+        Route::get('/patient', function () {
+            return view('patient');
+        })->name('patient');
+    });
 
-    // Exemple route multi-rôles
-    Route::get('/patients', function () {
-        return 'Liste des patients';
-    })->middleware('role:medecin|infirmier');
+    /*
+    |--------------------------------------------------------------------------
+    | MULTI-ROLES
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['role:medecin|infirmier'])->group(function () {
+        Route::get('/patients', function () {
+            return 'Liste des patients';
+        })->name('patients.list');
+    });
+
 });

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="LaravelPint">
+    <laravel_pint_settings>
+      <LaravelPintConfiguration tool_path="$PROJECT_DIR$/flavy/vendor/bin/pint" />
+    </laravel_pint_settings>
+  </component>
   <component name="MessDetectorOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
@@ -126,6 +131,17 @@
       <path value="$PROJECT_DIR$/flavy/vendor/symfony/polyfill-php83" />
       <path value="$PROJECT_DIR$/flavy/vendor/sebastian/code-unit-reverse-lookup" />
       <path value="$PROJECT_DIR$/flavy/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/flavy/vendor/pragmarx/google2fa" />
+      <path value="$PROJECT_DIR$/flavy/vendor/spatie/laravel-package-tools" />
+      <path value="$PROJECT_DIR$/flavy/vendor/spatie/laravel-permission" />
+      <path value="$PROJECT_DIR$/flavy/vendor/paragonie/constant_time_encoding" />
+      <path value="$PROJECT_DIR$/flavy/vendor/mobiledetect/mobiledetectlib" />
+      <path value="$PROJECT_DIR$/flavy/vendor/dasprid/enum" />
+      <path value="$PROJECT_DIR$/flavy/vendor/laravel/fortify" />
+      <path value="$PROJECT_DIR$/flavy/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/flavy/vendor/laravel/jetstream" />
+      <path value="$PROJECT_DIR$/flavy/vendor/livewire/livewire" />
+      <path value="$PROJECT_DIR$/flavy/vendor/bacon/bacon-qr-code" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2">

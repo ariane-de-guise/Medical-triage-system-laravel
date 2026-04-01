@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <h3 class="text-lg font-medium mb-4">Bienvenue, {{ auth()->user()->name }}</h3>
+                <h3 class="text-lg font-medium mb-4">Bienvenue, {{ auth()->user()->compte->nom }}, {{auth()->user()->compte->prenom}}</h3>
 
                 <div class="space-y-2">
                     @role('admin')

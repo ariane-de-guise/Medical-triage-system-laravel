@@ -13,11 +13,26 @@ class CompteFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'nom' => fake()->lastName(),
             'prenom' => fake()->firstName(),
             'date_naissance' => fake()->date(),
-            'role_id' => fake()->randomElement([1, 4]), // 0 = patient, 1 = doctor
         ];
+    }
+
+    /**
+     * Crée un user associé avant la création du compte
+     */
+    public function withUser(): self
+    {
+        return $this->state(function (array $attributes) {
+            $user = User::factory()->create([
+                'email' => strtolower(fake()->lastName()) . '.' . strtolower(fake()->firstName()) . '@example.com',
+                'password' => bcrypt('password'),
+            ]);
+
+            return [
+                'user_id' => $user->id,
+            ];
+        });
     }
 }

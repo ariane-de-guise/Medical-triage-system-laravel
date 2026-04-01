@@ -122,6 +122,17 @@
       <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/tijsverkoyen/css-to-inline-styles" />
       <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/vlucas/phpdotenv" />
       <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/voku/portable-ascii" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/bacon/bacon-qr-code" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/dasprid/enum" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/laravel/fortify" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/laravel/jetstream" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/laravel/sanctum" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/livewire/livewire" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/mobiledetect/mobiledetectlib" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/paragonie/constant_time_encoding" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/pragmarx/google2fa" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/spatie/laravel-package-tools" />
+      <excludeFolder url="file://$MODULE_DIR$/flavy/vendor/spatie/laravel-permission" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

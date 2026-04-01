@@ -11,31 +11,25 @@
         <!-- Profile Photo -->
         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
             <div x-data="{photoName: null, photoPreview: null}" class="col-span-6 sm:col-span-4">
-                <!-- Profile Photo File Input -->
                 <input type="file" id="photo" class="hidden"
-                            wire:model.live="photo"
-                            x-ref="photo"
-                            x-on:change="
-                                    photoName = $refs.photo.files[0].name;
-                                    const reader = new FileReader();
-                                    reader.onload = (e) => {
-                                        photoPreview = e.target.result;
-                                    };
-                                    reader.readAsDataURL($refs.photo.files[0]);
-                            " />
+                       wire:model.live="photo"
+                       x-ref="photo"
+                       x-on:change="
+                           photoName = $refs.photo.files[0].name;
+                           const reader = new FileReader();
+                           reader.onload = (e) => { photoPreview = e.target.result; };
+                           reader.readAsDataURL($refs.photo.files[0]);
+                       " />
 
                 <x-label for="photo" value="{{ __('Photo') }}" />
 
-                <!-- Current Profile Photo -->
                 <div class="mt-2" x-show="! photoPreview">
                     <img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}" class="rounded-full size-20 object-cover">
                 </div>
 
-                <!-- New Profile Photo Preview -->
                 <div class="mt-2" x-show="photoPreview" style="display: none;">
                     <span class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
-                          x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
-                    </span>
+                          x-bind:style="'background-image: url(\'' + photoPreview + '\');'"></span>
                 </div>
 
                 <x-secondary-button class="mt-2 me-2" type="button" x-on:click.prevent="$refs.photo.click()">
@@ -52,34 +46,76 @@
             </div>
         @endif
 
-        <!-- Name -->
+        <!-- Nom -->
         <div class="col-span-6 sm:col-span-4">
-            <x-label for="name" value="{{ __('Name') }}" />
-            <x-input id="name" type="text" class="mt-1 block w-full" wire:model="state.name" required autocomplete="name" />
-            <x-input-error for="name" class="mt-2" />
+            <x-label for="nom" value="{{ __('Nom') }}" />
+            <x-input id="nom" type="text" class="mt-1 block w-full" wire:model="state.nom" />
+            <x-input-error for="nom" class="mt-2" />
+        </div>
+
+        <!-- Prénom -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="prenom" value="{{ __('Prénom') }}" />
+            <x-input id="prenom" type="text" class="mt-1 block w-full" wire:model="state.prenom" />
+            <x-input-error for="prenom" class="mt-2" />
+        </div>
+
+        <!-- Date de naissance -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="date_naissance" value="{{ __('Date de naissance') }}" />
+            <x-input id="date_naissance" type="date" class="mt-1 block w-full" wire:model="state.date_naissance" />
+            <x-input-error for="date_naissance" class="mt-2" />
+        </div>
+
+        @php
+            $adresse = $this->user->compte->adresses->first() ?? null;
+            $telephone = $this->user->compte->telephones->first() ?? null;
+        @endphp
+
+            <!-- Rue -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="rue" value="{{ __('Rue') }}" />
+            <x-input id="rue" type="text" class="mt-1 block w-full" wire:model="state.rue" :value="$adresse->rue ?? ''"/>
+        </div>
+
+        <!-- Ville -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="ville" value="{{ __('Ville') }}" />
+            <x-input id="ville" type="text" class="mt-1 block w-full" wire:model="state.ville" :value="$adresse->ville ?? ''"/>
+        </div>
+
+        <!-- Province -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="province" value="{{ __('Province') }}" />
+            <x-input id="province" type="text" class="mt-1 block w-full" wire:model="state.province" :value="$adresse->province ?? ''"/>
+        </div>
+
+        <!-- Code postal -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="code_postal" value="{{ __('Code postal') }}" />
+            <x-input id="code_postal" type="text" class="mt-1 block w-full" wire:model="state.code_postal" :value="$adresse->code_postal ?? ''"/>
+        </div>
+
+        <!-- Type -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="type" value="{{ __('Type d\'adresse') }}" />
+            <select id="type" class="mt-1 block w-full border-gray-300 rounded-md" wire:model="state.type">
+                <option value="maison" {{ ($adresse->type ?? '') === 'maison' ? 'selected' : '' }}>Maison</option>
+                <option value="appartement" {{ ($adresse->type ?? '') === 'appartement' ? 'selected' : '' }}>Appartement</option>
+            </select>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="telephone" value="{{ __('Téléphone') }}" />
+            <x-input id="telephone" type="text" class="mt-1 block w-full" wire:model="state.telephone" :value="$telephone->numero ?? ''"/>
         </div>
 
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="email" value="{{ __('Email') }}" />
-            <x-input id="email" type="email" class="mt-1 block w-full" wire:model="state.email" required autocomplete="username" />
+            <x-input id="email" type="email" class="mt-1 block w-full" wire:model="state.email" required />
             <x-input-error for="email" class="mt-2" />
-
-            @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::emailVerification()) && ! $this->user->hasVerifiedEmail())
-                <p class="text-sm mt-2">
-                    {{ __('Your email address is unverified.') }}
-
-                    <button type="button" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" wire:click.prevent="sendEmailVerification">
-                        {{ __('Click here to re-send the verification email.') }}
-                    </button>
-                </p>
-
-                @if ($this->verificationLinkSent)
-                    <p class="mt-2 font-medium text-sm text-green-600">
-                        {{ __('A new verification link has been sent to your email address.') }}
-                    </p>
-                @endif
-            @endif
         </div>
     </x-slot>
 
