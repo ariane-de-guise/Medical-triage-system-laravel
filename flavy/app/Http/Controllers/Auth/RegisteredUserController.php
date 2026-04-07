@@ -65,13 +65,13 @@ class RegisteredUserController extends Controller
             // 4️⃣ Créer et lier l'adresse
             $adresse = Adresse::create([
                 'rue' => $request->rue,
-                'numero' => $request->numero, // 👈 nouveau champ ajouté
+                'numero' => $request->numero,
                 'ville' => $request->ville,
                 'province' => $request->province,
                 'code_postal' => $request->code_postal,
-                'type' => $request->type ?? 'maison',
+                'type' => $request->type ?? 'home',
             ]);
-            $compte->adresses()->attach($adresse->id, ['type' => $request->type ?? 'maison']);
+            $compte->adresses()->attach($adresse->id, ['type' => $request->type == 'travail' ? 'work' : 'home']);
 
             // 5️⃣ Créer et lier le téléphone
             if ($request->telephone) {

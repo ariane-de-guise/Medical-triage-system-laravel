@@ -2,6 +2,8 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Adresse;
+use App\Models\Telephone;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -26,10 +28,38 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
+        // 1️⃣ Create user
+        $user = User::create([
             'email' => $input['email'],
-            'password' => Hash::make($input['password']),
+            'password' => bcrypt($input['password']),
         ]);
+
+        // 2️⃣ Create compte
+        $compte = $user->compte()->create([
+            'nom' => $input['nom'] ?? '',
+            'prenom' => $input['prenom'] ?? '',
+            'date_naissance' => $input['date_naissance'] ?? null,
+        ]);
+
+        $adresse = Adresse::create([
+            'numero' => $input['numero'] ?? '',
+            'rue' => $input['rue'] ?? '',
+            'ville' => $input['ville'] ?? '',
+            'province' => $input['province'] ?? '',
+            'code_postal' => $input['code_postal'] ?? '',
+            'type' => 'home',
+        ]);
+
+        $compte->adresses()->attach($adresse->id, [
+            'type' => 'home'
+        ]);
+
+        // 4️⃣ Create telephone
+        $telephone = Telephone::create([
+            'numero' => $input['telephone'] ?? '',
+        ]);
+
+        $compte->telephones()->attach($telephone->id);
+        return $user;
     }
 }

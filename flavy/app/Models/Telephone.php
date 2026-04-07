@@ -10,7 +10,7 @@ class Telephone extends Model
     use HasFactory;
 
     protected $fillable = ['numero'];
-    public function comptes()
+    public function comptes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Compte::class, 'telephone_user');
     }

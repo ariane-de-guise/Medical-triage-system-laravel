@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
-use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
+use App\Livewire\Profile\ApiTokenManager;
 use Livewire\Livewire;
 use Tests\TestCase;
 

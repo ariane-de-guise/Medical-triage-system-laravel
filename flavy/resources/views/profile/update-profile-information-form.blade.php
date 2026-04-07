@@ -72,28 +72,34 @@
             $telephone = $this->user->compte->telephones->first() ?? null;
         @endphp
 
+            <!-- No Civique -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="numero" value="{{ __('Numéro civique') }}" />
+            <x-input id="numero" type="text" class="mt-1 block w-full" wire:model="state.numero"/>
+        </div>
+
             <!-- Rue -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="rue" value="{{ __('Rue') }}" />
-            <x-input id="rue" type="text" class="mt-1 block w-full" wire:model="state.rue" :value="$adresse->rue ?? ''"/>
+            <x-input id="rue" type="text" class="mt-1 block w-full" wire:model="state.rue"/>
         </div>
 
         <!-- Ville -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="ville" value="{{ __('Ville') }}" />
-            <x-input id="ville" type="text" class="mt-1 block w-full" wire:model="state.ville" :value="$adresse->ville ?? ''"/>
+            <x-input id="ville" type="text" class="mt-1 block w-full" wire:model="state.ville"/>
         </div>
 
         <!-- Province -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="province" value="{{ __('Province') }}" />
-            <x-input id="province" type="text" class="mt-1 block w-full" wire:model="state.province" :value="$adresse->province ?? ''"/>
+            <x-input id="province" type="text" class="mt-1 block w-full" wire:model="state.province"/>
         </div>
 
         <!-- Code postal -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="code_postal" value="{{ __('Code postal') }}" />
-            <x-input id="code_postal" type="text" class="mt-1 block w-full" wire:model="state.code_postal" :value="$adresse->code_postal ?? ''"/>
+            <x-input id="code_postal" type="text" class="mt-1 block w-full" wire:model="state.code_postal"/>
         </div>
 
         <!-- Type -->
@@ -108,7 +114,7 @@
         <!-- Téléphone -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="telephone" value="{{ __('Téléphone') }}" />
-            <x-input id="telephone" type="text" class="mt-1 block w-full" wire:model="state.telephone" :value="$telephone->numero ?? ''"/>
+            <x-input id="telephone" type="text" class="mt-1 block w-full" wire:model="state.telephone"/>
         </div>
 
         <!-- Email -->
