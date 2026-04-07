@@ -4,36 +4,42 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Compte extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'nom', 'prenom', 'date_naissance', 'type'];
+    protected $guarded = [];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-
-    public function adresses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function hasRole(string $role): bool
+    {
+        return $this->user?->hasRole($role) ?? false;
+    }
+    public function adresses(): BelongsToMany
     {
         return $this->belongsToMany(Adresse::class, 'adresse_user')
             ->withPivot('type')
             ->withTimestamps();
     }
 
-    public function telephones(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function telephones(): BelongsToMany
     {
         return $this->belongsToMany(Telephone::class, 'telephone_user');
     }
 
-    public function visitesPatient()
+    public function visitesPatient(): HasMany
     {
         return $this->hasMany(Visite::class, 'patient_id');
     }
 
-    public function visitesDocteur()
+    public function visitesDocteur(): HasMany
     {
         return $this->hasMany(Visite::class, 'docteur_id');
     }

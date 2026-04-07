@@ -9,10 +9,10 @@ class AdresseFactory extends Factory
 {
     protected $model = Adresse::class;
 
-    public function definition()
+    public function definition(): array
     {
         $provinces = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'ON', 'PE', 'QC', 'SK', 'YT', 'NU', 'NT'];
-        $postal_code = fake()->randomLetter() . fake()->randomDigit() . fake()->randomLetter() . ' ' . fake()->randomDigit() . fake()->randomLetter() . fake()->randomDigit();
+
         return [
             'code_postal' => $this->getRandomPostalCode(),
             'numero' => fake()->numberBetween(1, 9999),
@@ -29,8 +29,7 @@ class AdresseFactory extends Factory
         $digits = '0123456789';
         $postal_code = '';
         for ($i = 0; $i < 3; $i++) {
-            $postal_code .= $letters[rand(0, strlen($letters) - 1)];
-            $postal_code .= $digits[rand(0, strlen($digits) - 1)];
+            $postal_code .= $letters[rand(0, 25)] . $digits[rand(0, 9)];
         }
         return substr($postal_code, 0, 3) . ' ' . substr($postal_code, 3);
     }
