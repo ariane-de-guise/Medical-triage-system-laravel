@@ -5,7 +5,10 @@ namespace Database\Seeders;
 use App\Models\Adresse;
 use App\Models\Compte;
 use App\Models\Diagnostique;
+use App\Models\Infirmier_Connecte;
+use App\Models\Medecin_Connecte;
 use App\Models\Telephone;
+use App\Models\Triage;
 use App\Models\Visite;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -14,18 +17,32 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1️⃣ Crée les rôles
         $roles = ['admin', 'medecin', 'infirmier', 'patient'];
+
         foreach ($roles as $roleName) {
             Role::firstOrCreate(['name' => $roleName]);
         }
 
-        // 2️⃣ Crée des comptes avec utilisateurs associés
         $comptes = Compte::factory(20)->withUser()->create();
 
-        // Assigne un rôle aléatoire à chaque user
-        foreach ($comptes as $compte) {
-            $compte->user->assignRole($roles[array_rand($roles)]);
+        $admin = $comptes->shift();
+
+        $nurses = $comptes->splice(0, 4);
+        $doctors = $comptes->splice(0, 4);
+        $patients = $comptes;
+
+        $admin->user->assignRole('admin');
+
+        foreach ($nurses as $compte) {
+            $compte->user->assignRole('infirmier');
+        }
+
+        foreach ($doctors as $compte) {
+            $compte->user->assignRole('medecin');
+        }
+
+        foreach ($patients as $compte) {
+            $compte->user->assignRole('patient');
         }
 
         // 3️⃣ Crée les adresses et les associe
@@ -45,8 +62,6 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 5️⃣ Crée les diagnostiques pour les patients
-        $patients = $comptes->filter(fn($c) => $c->user->hasRole('patient'));
         $diagnostiques = [];
         foreach (range(1, 30) as $i) {
             $diag = Diagnostique::factory()
@@ -55,8 +70,6 @@ class DatabaseSeeder extends Seeder
             $diagnostiques[] = $diag;
         }
 
-        // 6️⃣ Crée les visites avec patients, médecins et diagnostiques
-        $doctors = $comptes->filter(fn($c) => $c->user->hasRole('medecin'));
         foreach (range(1, 30) as $i) {
             Visite::create([
                 'patient_id' => $patients->random()->id,
@@ -64,6 +77,29 @@ class DatabaseSeeder extends Seeder
                 'diagnostique_id' => $diagnostiques[array_rand($diagnostiques)]->id,
                 'date_heure' => now(),
             ]);
+        }
+
+        $connectedNurses = collect();
+        foreach ($nurses->take(2) as $nurse) {
+            $connectedNurses->push(
+                Infirmier_Connecte::create([
+                    'compte_id' => $nurse->id
+                ])
+            );
+        }
+
+        $connectedDoctors = collect();
+        foreach ($doctors->take(3) as $doctor) {
+            $connectedDoctors->push(
+                Medecin_Connecte::create([
+                    'compte_id' => $doctor->id
+                ])
+            );
+        }
+
+        foreach ($patients as $patient) {
+            $priority = rand(0, 4);
+            Triage::enqueue($patient, $priority);
         }
     }
 }
