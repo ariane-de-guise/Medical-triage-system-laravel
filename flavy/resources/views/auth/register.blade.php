@@ -75,7 +75,7 @@
                 <x-label for="type" value="{{ __('Type de votre adresse') }}" />
                 <select id="type" name="type" class="block mt-1 w-full border-gray-300 rounded-md">
                     <option value="maison" selected>Maison</option>
-                    <option value="appartement">Apartement</option>
+                    <option value="travail">Travail</option>
                 </select>
             </div>
 
