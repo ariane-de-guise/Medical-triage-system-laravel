@@ -60,14 +60,15 @@ class Triage extends Model
                 $triage->save();
             });
         } catch (Throwable $e) {
-            dd($e->getMessage());
-            Log::error($e->getMessage());
+            Log::error('Triage enqueue failed', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
     public static function dequeue(Compte $compte): void
     {
-        $patient = Triage::where('compte_id', $compte->id)->findOrFail();
+        $patient = Triage::where('compte_id', $compte->id)->firstOrFail();
 
         if (!$patient) {
             throw new OutOfBoundsException("Queue is empty");
@@ -78,24 +79,41 @@ class Triage extends Model
 
     public static function rebalance(bool $infirmier): void
     {
-        $practitioners = $infirmier ? Infirmier_Connecte::withCount('triages')->get() : Medecin_Connecte::withCount('triages')->get();
-        if ($practitioners->isEmpty()) return;
-
-        $triages = $infirmier ?
-            Triage::orderBy('priority')
+        $triages = Triage::orderBy('priority')
             ->orderBy('position')
-            ->where('infirmier_connecte_id', null)
-            ->get() :
-            Triage::orderBy('priority')
-            ->orderBy('position')
-            ->where('medecin_connecte_id', null)
             ->get();
+
+        $practitioners = $infirmier
+            ? Infirmier_Connecte::withCount('triages')->get()
+            : Medecin_Connecte::withCount('triages')->get();
+
+        foreach ($practitioners as $practitioner) {
+            if ($practitioners->count() > 0) {
+                $patientSeen = $practitioner->triages()->orderBy('priority')
+                    ->orderBy('position')
+                    ->first();
+
+                if ($patientSeen) {
+                    $triages = $triages->reject(function ($t) use ($patientSeen) {
+                        return $t->id === $patientSeen->id;
+                    });
+                    $practitioner->triages_count--;
+                }
+            }
+        }
+
+        $practitioners = $practitioners
+            ->sortBy('triages_count')
+            ->values();
 
         $i = 0;
         $count = $practitioners->count();
 
         foreach ($triages as $triage) {
             $practitioner = $practitioners[$i];
+
+            $triage->infirmier_connecte_id = null;
+            $triage->medecin_connecte_id = null;
 
             if ($infirmier) {
                 $triage->infirmier_connecte_id = $practitioner->id;
@@ -105,6 +123,7 @@ class Triage extends Model
 
             $triage->save();
 
+            $practitioner->triages_count++;
             $i = ($i + 1) % $count;
         }
     }

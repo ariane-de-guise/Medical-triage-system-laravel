@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $roleName]);
         }
 
-        $comptes = Compte::factory(20)->withUser()->create();
+        $comptes = Compte::factory(20)->create();
 
         $admin = $comptes->shift();
 

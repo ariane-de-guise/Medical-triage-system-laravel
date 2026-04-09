@@ -20,7 +20,7 @@ class Medecin_Connecte extends Model
 
     public function triages()
     {
-        return $this->hasMany(Triage::class, 'infirmier_connecte_id');
+        return $this->hasMany(Triage::class, 'medecin_connecte_id');
     }
 
     public function login(Compte $compte): void {
