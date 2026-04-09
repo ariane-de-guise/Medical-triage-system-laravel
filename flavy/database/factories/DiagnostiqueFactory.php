@@ -14,7 +14,6 @@ class DiagnostiqueFactory extends Factory
         return [
             'commentaire' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'date_heure' => now(),
             'priorite' => fake()->numberBetween(1, 5),
         ];
     }
@@ -23,6 +22,15 @@ class DiagnostiqueFactory extends Factory
     {
         return $this->state([
             'patient_id' => $compteId,
+        ]);
+    }
+
+    public function afterVisite($date_heure): self
+    {
+        return $this->state([
+            'date_heure' => \Carbon\Carbon::parse($date_heure)
+                ->copy()
+                ->addHours(8),
         ]);
     }
 }

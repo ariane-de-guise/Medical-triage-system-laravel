@@ -104,10 +104,10 @@
 
         <!-- Type -->
         <div class="col-span-6 sm:col-span-4">
-            <x-label for="type" value="{{ __('Type d\'adresse') }}" />
+            <x-label for="type" value="{{ __('Options') }}" />
             <select id="type" class="mt-1 block w-full border-gray-300 rounded-md" wire:model="state.type">
-                <option value="maison" {{ ($adresse->type ?? '') === 'maison' ? 'selected' : '' }}>Maison</option>
-                <option value="appartement" {{ ($adresse->type ?? '') === 'appartement' ? 'selected' : '' }}>Appartement</option>
+                <option value="home" {{ ($adresse->type ?? '') === 'home' ? 'selected' : '' }}>Maison</option>
+                <option value="work" {{ ($adresse->type ?? '') === 'work' ? 'selected' : '' }}>Travail</option>
             </select>
         </div>
 

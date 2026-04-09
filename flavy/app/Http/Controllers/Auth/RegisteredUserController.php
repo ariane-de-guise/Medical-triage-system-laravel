@@ -69,7 +69,7 @@ class RegisteredUserController extends Controller
                 'ville' => $request->ville,
                 'province' => $request->province,
                 'code_postal' => $request->code_postal,
-                'type' => $request->type ?? 'home',
+                'type' => $request->type,
             ]);
             $compte->adresses()->attach($adresse->id, ['type' => $request->type == 'travail' ? 'work' : 'home']);
 

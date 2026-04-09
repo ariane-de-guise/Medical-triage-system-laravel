@@ -12,7 +12,6 @@ class VisiteFactory extends Factory
     public function definition(): array
     {
         return [
-            'date_heure' => now(),
         ];
     }
 }

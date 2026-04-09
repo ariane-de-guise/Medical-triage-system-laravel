@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Triage;
 use Illuminate\Support\Facades\Route;
 
 // Page d'accueil
@@ -70,6 +71,28 @@ Route::middleware([
         Route::get('/patient', function () {
             return view('patient');
         })->name('patient');
+
+        Route::post('/patient/enqueue', function () {
+            $patient = auth()->user()->compte;
+            abort_if(!$patient, 403);
+
+            Triage::enqueue($patient, 0);
+
+            return redirect()
+                ->route('patient')
+                ->with('success', 'Vous avez été ajouté à la file d\'attente');
+        })->name('patient.enqueue');
+
+        Route::post('/patient/dequeue', function () {
+            $patient = auth()->user()->compte;
+            abort_if(!$patient, 403);
+
+            Triage::dequeue($patient);
+
+            return redirect()
+                ->route('patient')
+                ->with('success', 'Vous avez été retiré de la file d\'attente');
+        })->name('patient.dequeue');
     });
 
     /*

@@ -57,8 +57,11 @@ class CustomUpdateProfileInformationForm extends Component
         $this->state['ville'] = $adresse->ville ?? '';
         $this->state['province'] = $adresse->province ?? '';
         $this->state['code_postal'] = $adresse->code_postal ?? '';
-        $this->state['type'] = $adresse->type ?? 'maison';
-
+        if ($adresse->type == 'maison') {
+            $this->state['type'] = 'home';
+        } else {
+            $this->state['type'] = 'work';
+        }
         $this->state['telephone'] = $telephone->numero ?? '';
     }
 

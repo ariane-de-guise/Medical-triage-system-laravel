@@ -16,23 +16,7 @@ class CompteFactory extends Factory
             'nom' => fake()->lastName(),
             'prenom' => fake()->firstName(),
             'date_naissance' => fake()->date(),
+            'user_id' => User::factory(),
         ];
-    }
-
-    /**
-     * Crée un user associé avant la création du compte
-     */
-    public function withUser(): self
-    {
-        return $this->state(function (array $attributes) {
-            $user = User::factory()->create([
-                'email' => strtolower(fake()->lastName()) . '.' . strtolower(fake()->firstName()) . '@example.com',
-                'password' => bcrypt('password'),
-            ]);
-
-            return [
-                'user_id' => $user->id,
-            ];
-        });
     }
 }
