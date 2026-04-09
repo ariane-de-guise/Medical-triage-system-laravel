@@ -62,20 +62,18 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $diagnostiques = [];
         foreach (range(1, 30) as $i) {
+            $date_heure = fake()->dateTimeBetween('-1 year');
             $diag = Diagnostique::factory()
-                ->for($patients->random(), 'patient') // relation belongsTo patient
+                ->afterVisite($date_heure)
+                ->for($patients->random(), 'patient')
                 ->create();
-            $diagnostiques[] = $diag;
-        }
 
-        foreach (range(1, 30) as $i) {
             Visite::create([
                 'patient_id' => $patients->random()->id,
                 'docteur_id' => $doctors->random()->id,
-                'diagnostique_id' => $diagnostiques[array_rand($diagnostiques)]->id,
-                'date_heure' => now(),
+                'diagnostique_id' => $diag->id,
+                'date_heure' => $date_heure,
             ]);
         }
 

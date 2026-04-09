@@ -21,12 +21,12 @@ class Triage extends Model
 
     public function infirmier(): BelongsTo
     {
-        return $this->belongsTo(Infirmier_Connecte::class);
+        return $this->belongsTo(Infirmier_Connecte::class, 'infirmier_connecte_id');
     }
 
     public function medecin(): BelongsTo
     {
-        return $this->belongsTo(Medecin_Connecte::class);
+        return $this->belongsTo(Medecin_Connecte::class, 'medecin_connecte_id');
     }
 
     public static function enqueue(Compte $compte, int $priority): void
@@ -70,11 +70,9 @@ class Triage extends Model
     {
         $patient = Triage::where('compte_id', $compte->id)->firstOrFail();
 
-        if (!$patient) {
-            throw new OutOfBoundsException("Queue is empty");
+        if ($patient) {
+            $patient->delete();
         }
-
-        $patient->delete();
     }
 
     public static function rebalance(bool $infirmier): void
@@ -157,8 +155,36 @@ class Triage extends Model
         return $triage->compte;
     }
 
-    public static function count(): int
-    {
-        return Triage::count();
+    public static function enqueued(Compte $compte): bool {
+        return Triage::where('compte_id', $compte->id)->exists();
+    }
+
+    public static function queuePosition(Compte $compte): int {
+        $patient = Triage::where('compte_id', $compte->id)->first();
+
+        if (!$patient || ($patient->medecin_connecte_id === null && $patient->infirmier_connecte_id === null)) {
+            return -1;
+        }
+
+        $triages = $patient->medecin_connecte_id ?
+            Triage::orderBy('priority')
+            ->orderBy('position')
+            ->where('medecin_connecte_id', $patient->medecin_connecte_id)
+            ->get() :
+            Triage::orderBy('priority')
+            ->orderBy('position')
+            ->where('infirmier_connecte_id', $patient->infirmier_connecte_id)
+            ->get();
+
+        $index = 1;
+
+        foreach ($triages as $triage) {
+            if ($triage->compte_id == $compte->id) {
+                return $index;
+            }
+            $index++;
+        }
+
+        return -1;
     }
 }

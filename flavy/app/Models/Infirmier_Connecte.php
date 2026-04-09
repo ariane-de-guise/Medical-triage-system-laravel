@@ -23,7 +23,7 @@ class Infirmier_Connecte extends Model
         return $this->hasMany(Triage::class, 'infirmier_connecte_id');
     }
 
-    public function login(Compte $compte): void {
+    public static function login(Compte $compte): void {
         try {
             DB::transaction(function () use ($compte) {
                 Infirmier_Connecte::create([
@@ -37,7 +37,7 @@ class Infirmier_Connecte extends Model
         }
     }
 
-    public function logout(Compte $compte): void {
+    public static function logout(Compte $compte): void {
         try {
             DB::transaction(function () use ($compte) {
                 $infirmier = Infirmier_Connecte::where('compte_id', $compte->id)->firstOrFail();
