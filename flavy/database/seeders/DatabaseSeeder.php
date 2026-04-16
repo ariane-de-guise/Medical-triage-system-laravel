@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Algorithms\Roles;
+use App\Algorithms\TriageQueue;
 use App\Models\Adresse;
 use App\Models\Compte;
 use App\Models\Diagnostique;
-use App\Models\Infirmier_Connecte;
-use App\Models\Medecin_Connecte;
+use App\Models\Personnel;
 use App\Models\Telephone;
-use App\Models\Triage;
 use App\Models\Visite;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -80,8 +80,9 @@ class DatabaseSeeder extends Seeder
         $connectedNurses = collect();
         foreach ($nurses->take(2) as $nurse) {
             $connectedNurses->push(
-                Infirmier_Connecte::create([
-                    'compte_id' => $nurse->id
+                Personnel::create([
+                    'compte_id' => $nurse->id,
+                    'role' => Roles::Infirmier
                 ])
             );
         }
@@ -89,15 +90,24 @@ class DatabaseSeeder extends Seeder
         $connectedDoctors = collect();
         foreach ($doctors->take(3) as $doctor) {
             $connectedDoctors->push(
-                Medecin_Connecte::create([
-                    'compte_id' => $doctor->id
+                Personnel::create([
+                    'compte_id' => $doctor->id,
+                    'role' => Roles::Medecin
                 ])
             );
         }
 
+        $count = 0;
         foreach ($patients as $patient) {
-            $priority = rand(0, 4);
-            Triage::enqueue($patient, $priority);
+            if ($count < 6) {
+                TriageQueue::enqueue($patient->user, 0);
+            }
+            else {
+                $priority = rand(1, 5);
+                TriageQueue::enqueue($patient->user, $priority);
+            }
+
+            $count++;
         }
     }
 }
