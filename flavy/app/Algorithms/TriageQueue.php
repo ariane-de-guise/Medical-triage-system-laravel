@@ -103,43 +103,43 @@ class TriageQueue
             ->where('file_attente', $role)
             ->get();
 
-        $personnels = Personnel::where('role', $role)->get();
+        $personnels = Personnel::where('role', $role)
+            ->with('triages') // 🔥 important
+            ->get();
 
         if ($personnels->isEmpty()) return;
 
-        $practitioners = $personnels->loadCount('triages');
+        foreach ($personnels as $p) {
+            if ($p->triages->isNotEmpty()) {
 
-        foreach ($practitioners as $practitioner) {
-            if ($practitioner->count() > 0) {
-                $patientSeen = $practitioner->triages()->orderBy('priority')
-                    ->orderBy('position')
+                $patientSeen = $p->triages
+                    ->sortBy(['priority', 'position'])
                     ->first();
 
                 if ($patientSeen) {
-                    $triages = $triages->reject(function ($t) use ($patientSeen) {
-                        return $t->id === $patientSeen->id;
-                    });
-                    $practitioner->triages_count--;
+                    $triages = $triages->reject(
+                        fn ($t) => $t->id === $patientSeen->id
+                    );
+
+                    $p->setRelation(
+                        'triages',
+                        $p->triages->reject(
+                            fn ($t) => $t->id === $patientSeen->id
+                        )
+                    );
                 }
             }
         }
 
-        $practitioners = $practitioners
-            ->sortBy('triages_count')
-            ->values();
-
-        $i = 0;
-        $count = $practitioners->count();
-
         foreach ($triages as $triage) {
-            $practitioner = $practitioners[$i];
+            $practitioner = $personnels->sortBy(
+                fn ($p) => $p->triages->count()
+            )->first();
 
             $triage->personnel_id = $practitioner->id;
-
             $triage->save();
 
-            $practitioner->triages_count++;
-            $i = ($i + 1) % $count;
+            $practitioner->triages->push($triage);
         }
     }
 

@@ -62,13 +62,14 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        foreach (range(1, 30) as $i) {
+        foreach (range(1, 30) as $ignored) {
             $date_heure = fake()->dateTimeBetween('-1 year');
             $diag = Diagnostique::factory()
                 ->afterVisite($date_heure)
                 ->for($patients->random(), 'patient')
                 ->create();
 
+            /** @var Diagnostique $diag */
             Visite::create([
                 'patient_id' => $patients->random()->id,
                 'docteur_id' => $doctors->random()->id,

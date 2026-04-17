@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Actions\Jetstream\DeleteUser;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
@@ -26,7 +27,7 @@ class JetstreamServiceProvider extends ServiceProvider
 
         Jetstream::deleteUsersUsing(DeleteUser::class);
         Fortify::updateUserProfileInformationUsing(
-            \App\Actions\Fortify\UpdateUserProfileInformation::class
+            UpdateUserProfileInformation::class
         );
     }
 
