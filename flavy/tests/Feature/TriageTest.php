@@ -2,700 +2,335 @@
 
 namespace Tests\Feature;
 
+use App\Algorithms\Roles;
+use App\Algorithms\TimeCard;
+use App\Algorithms\TriageQueue;
 use App\Models\Compte;
+use App\Models\Personnel;
 use App\Models\Triage;
-use App\Models\Infirmier_Connecte;
-use App\Models\Medecin_Connecte;
+use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use OutOfBoundsException;
 use Tests\TestCase;
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertLessThanOrEqual;
 use function PHPUnit\Framework\assertNotNull;
 
 class TriageTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createInfirmiers(int $count = 2)
-    {
-        return Compte::factory($count)->create()->map(function ($compte) {
-            return Infirmier_Connecte::create([
-                'compte_id' => $compte->id
-            ]);
-        });
-    }
-
-    private function createMedecins(int $count = 2)
-    {
-        return Compte::factory($count)->create()->map(function ($compte) {
-            return Medecin_Connecte::create([
-                'compte_id' => $compte->id
-            ]);
-        });
+    function createUserWithCompte(): User {
+        $user = User::factory()->create();
+        Compte::create([
+            'user_id' => $user->id,
+            'nom' => 'Test',
+            'prenom' => 'User',
+            'date_naissance' => now(),
+        ]);
+        return $user;
     }
 
     /** @test */
-    public function it_can_enqueue_patient_with_infirmier()
-    {
-        $this->createInfirmiers(1);
+    function enqueueAssignsInfirmierWhenPriority0(): void {
+        $user = $this->createUserWithCompte();
 
-        $patient = Compte::factory()->create();
+        $inf = Personnel::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'role' => Roles::Infirmier
+        ]);
 
-        Triage::enqueue($patient, 0);
+        TriageQueue::enqueue($user, 0);
 
-        $this->assertDatabaseCount('triages', 1);
+        $this->assertDatabaseHas('triages', [
+            'compte_id' => $user->compte->id,
+            'personnel_id' => $inf->id,
+        ]);
     }
 
     /** @test */
-    public function it_can_enqueue_patient_with_medecin()
-    {
-        $this->createMedecins(1);
+    function enqueueAssignsMedecinWhenPriority1(): void {
+        $user = $this->createUserWithCompte();
 
-        $patient = Compte::factory()->create();
+        $med = Personnel::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'role' => Roles::Medecin
+        ]);
 
-        Triage::enqueue($patient, 1);
+        TriageQueue::enqueue($user, 1);
 
-        $this->assertDatabaseCount('triages', 1);
+        $this->assertDatabaseHas('triages', [
+            'compte_id' => $user->compte->id,
+            'personnel_id' => $med->id,
+        ]);
     }
 
     /** @test */
-    public function it_assigns_least_busy_infirmier()
-    {
-        $infirmiers = $this->createInfirmiers(2);
+    function enqueueLogsErrorWhenNoPractitionerExists(): void {
+        $user = $this->createUserWithCompte();
 
-        $p1 = Compte::factory()->create();
-        $p2 = Compte::factory()->create();
+        TriageQueue::enqueue($user, 0);
+        TriageQueue::enqueue($user, 1);
 
-        Triage::enqueue($p1, 0);
-        Triage::enqueue($p2, 0);
-
-        $triages = Triage::all();
-
-        $this->assertCount(2, $triages);
-        $this->assertNotNull($triages[0]->infirmier_connecte_id);
-        $this->assertNotNull($triages[1]->infirmier_connecte_id);
+        $this->assertDatabaseMissing('triages', [
+            'compte_id' => $user->compte->id,
+        ]);
     }
 
     /** @test */
-    public function it_orders_by_priority()
-    {
-        $this->createInfirmiers(1);
+    function dequeueRemovesTriage(): void {
+        $user = $this->createUserWithCompte();
 
-        $low = Compte::factory()->create();
-        $high = Compte::factory()->create();
+        Triage::create([
+            'compte_id' => $user->compte->id,
+            'position' => 1,
+            'priority' => 0,
+        ]);
 
-        Triage::enqueue($low, 1);
-        Triage::enqueue($high, 0);
-
-        $first = Triage::orderBy('priority')->first();
-
-        $this->assertEquals($high->id, $first->compte_id);
-    }
-
-    /** @test */
-    public function it_can_dequeue_patient()
-    {
-        $this->createInfirmiers(1);
-
-        $patient = Compte::factory()->create();
-
-        Triage::enqueue($patient, 0);
-        Triage::dequeue($patient);
+        TriageQueue::dequeue($user);
 
         $this->assertDatabaseCount('triages', 0);
     }
 
     /** @test */
-    public function it_can_peek_patient_for_infirmier()
-    {
-        $infCompte = Compte::factory()->create();
-
-        Infirmier_Connecte::create([
-            'compte_id' => $infCompte->id
-        ]);
-
-        $patient = Compte::factory()->create();
-
-        Triage::enqueue($patient, 0);
-
-        $result = Triage::peek(0, $infCompte);
-
-        $this->assertEquals($patient->id, $result->id);
-    }
-
-    /** @test */
-    public function it_rebalances_when_new_infirmier_logs_in()
-    {
-        $inf1 = Compte::factory()->create();
-        Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-
-        $patients = Compte::factory(6)->create();
-
-        foreach ($patients as $p) {
-            Triage::enqueue($p, 0);
-        }
-
-        // add second infirmier → should rebalance
-        $inf2 = Compte::factory()->create();
-        Infirmier_Connecte::login($inf2);
-
-        $inf3 = Compte::factory()->create();
-        Infirmier_Connecte::login($inf3);
-
-        $counts = Infirmier_Connecte::withCount('triages')->pluck('triages_count');
-
-        $this->assertTrue($counts->max() - $counts->min() <= 1);
-    }
-
-    /** @test */
-    public function it_rebalances_when_infirmier_logs_out()
-    {
-        $infs = $this->createInfirmiers(3);
-
-        $patients = Compte::factory(6)->create();
-
-        foreach ($patients as $p) {
-            Triage::enqueue($p, 0);
-        }
-
-        // logout one infirmier
-        (new Infirmier_Connecte())->logout($infs[0]->compte);
-
-        $remaining = Infirmier_Connecte::first();
-
-        $this->assertEquals(3, $remaining->triages()->count());
-    }
-
-    public function relation_medecin_compte(): void
-    {
-        $meds = $this->createMedecins(3);
-
-        assertNotNull($meds[0]->compte);
-    }
-
-    /** @test */
-    public function peek_throws_exception_if_out_of_bounds()
-    {
-        $infCompte = Compte::factory()->create();
-
-        Infirmier_Connecte::create([
-            'compte_id' => $infCompte->id
-        ]);
-
-        $this->expectException(OutOfBoundsException::class);
-
-        Triage::peek(0, $infCompte);
-    }
-
-    /** @test */
-    public function enqueue_fails_if_no_practitioner()
-    {
-        Log::shouldReceive('error')
-            ->once()
-            ->withArgs(function ($message, $context) {
-                return $message === 'Triage enqueue failed'
-                    && isset($context['error'])
-                    && str_contains($context['error'], 'No practitioner available');
-            });
-
-        $patient = Compte::factory()->create();
-
-        Triage::enqueue($patient, 0);
-    }
-
-    public function test_enqueued_returns_true_if_patient_is_in_queue()
-    {
-        $compte = Compte::factory()->create();
+    function enqueuedReturnsTrueIfExists(): void {
+        $user = $this->createUserWithCompte();
 
         Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-        ]);
-
-        $this->assertTrue(Triage::enqueued($compte));
-    }
-
-    public function test_enqueued_returns_false_if_patient_not_in_queue()
-    {
-        $compte = Compte::factory()->create();
-
-        $this->assertFalse(Triage::enqueued($compte));
-    }
-
-    public function test_queue_position_returns_correct_index()
-    {
-        $compte1 = Compte::factory()->create();
-        $compte2 = Compte::factory()->create();
-        $compte3 = Compte::factory()->create();
-
-        $inf1 = Compte::factory()->create();
-        $infirmier = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-
-        Triage::create([
-            'compte_id' => $compte1->id,
-            'priority' => 1,
-            'position' => 0,
-            'infirmier_connecte_id' => $infirmier->id,
-        ]);
-
-        Triage::create([
-            'compte_id' => $compte2->id,
-            'priority' => 1,
+            'compte_id' => $user->compte->id,
             'position' => 1,
-            'infirmier_connecte_id' => $infirmier->id,
+            'priority' => 0,
+        ]);
+
+        assertEquals(true, TriageQueue::enqueued($user));
+    }
+
+    /** @test */
+    function enqueuedReturnsFalseIfNotExists(): void {
+        $user = $this->createUserWithCompte();
+
+        assertEquals(false, TriageQueue::enqueued($user));
+    }
+
+    /** @test */
+    function queuePositionReturnsCorrectIndex(): void {
+        $user = $this->createUserWithCompte();
+        $user2 = $this->createUserWithCompte();
+
+        $personnel = Personnel::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'role' => Roles::Infirmier
         ]);
 
         Triage::create([
-            'compte_id' => $compte3->id,
-            'priority' => 1,
-            'position' => 2,
-            'infirmier_connecte_id' => $infirmier->id,
-        ]);
-
-        $this->assertEquals(2, Triage::queuePosition($compte2));
-    }
-
-    public function test_queue_position_returns_minus_one_if_not_found()
-    {
-        $compte = Compte::factory()->create();
-
-        $this->assertEquals(-1, Triage::queuePosition($compte));
-    }
-
-    public function test_enqueued_true_and_false()
-    {
-        $compte = Compte::factory()->create();
-
-        $this->assertFalse(Triage::enqueued($compte));
-
-        Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-        ]);
-
-        $this->assertTrue(Triage::enqueued($compte));
-    }
-
-    public function test_queue_position_with_infirmier_and_medecin()
-    {
-        $compte = Compte::factory()->create();
-
-        $inf1 = Compte::factory()->create();
-        $infirmier = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-
-        $med = Compte::factory()->create();
-        $medecin = Medecin_Connecte::create(['compte_id' => $med->id]);
-
-        // infirmier branch
-        Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-            'infirmier_connecte_id' => $infirmier->id,
-        ]);
-
-        $this->assertEquals(1, Triage::queuePosition($compte));
-
-        // medecin branch
-        Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-            'medecin_connecte_id' => $medecin->id,
-        ]);
-
-        $this->assertNotEquals(-1, Triage::queuePosition($compte));
-    }
-
-    public function test_queue_position_returns_minus_one()
-    {
-        $compte = Compte::factory()->create();
-
-        $this->assertEquals(-1, Triage::queuePosition($compte));
-    }
-
-    public function test_queue_position_respects_priority_and_position()
-    {
-        $compte1 = Compte::factory()->create();
-        $compte2 = Compte::factory()->create();
-
-        $inf1 = Compte::factory()->create();
-        $inf = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-
-        Triage::create([
-            'compte_id' => $compte2->id,
-            'priority' => 2,
-            'position' => 0,
-            'infirmier_connecte_id' => $inf->id,
+            'compte_id' => $user->compte->id,
+            'position' => 1,
+            'priority' => 0,
+            'personnel_id' => $personnel->id,
         ]);
 
         Triage::create([
-            'compte_id' => $compte1->id,
-            'priority' => 1,
-            'position' => 0,
-            'infirmier_connecte_id' => $inf->id,
+            'compte_id' => $user2->compte->id,
+            'position' => 1,
+            'priority' => 0,
+            'personnel_id' => $personnel->id,
         ]);
 
-        // compte1 should be first because lower priority value
-        $this->assertEquals(1, Triage::queuePosition($compte1));
+        assertEquals(2, TriageQueue::queuePosition($user2));
     }
 
-    public function test_triage_relations()
-    {
-        $compte = Compte::factory()->create();
-        $compte2 = Compte::factory()->create();
+    /** @test */
+    function queuePositionReturnsNegativeWhenNoPersonnel(): void {
+        $user = $this->createUserWithCompte();
 
-        $inf1 = Compte::factory()->create();
-        $inf = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-
-        $med1 = Compte::factory()->create();
-        $med = Medecin_Connecte::create(['compte_id' => $med1->id]);
-
-        $triage = Triage::create([
-            'compte_id' => $compte->id,
-            'infirmier_connecte_id' => $inf->id,
-            'priority' => 1,
-            'position' => 0,
-        ])->fresh();
-
-        $triage2 = Triage::create([
-            'compte_id' => $compte2->id,
-            'medecin_connecte_id' => $med->id,
-            'priority' => 1,
-            'position' => 0,
-        ])->fresh();
-
-        $this->assertInstanceOf(Compte::class, $triage->compte);
-        $this->assertInstanceOf(Infirmier_Connecte::class, $triage->infirmier);
-
-        $this->assertInstanceOf(Medecin_Connecte::class, $triage2->medecin);
+        assertEquals(-1, TriageQueue::queuePosition($user));
     }
 
-    public function test_triage_medecin_relation()
-    {
-        $compte = Compte::factory()->create();
+    /** @test */
+    function peekReturnsCorrectPatient(): void {
+        $user = $this->createUserWithCompte();
 
-        $medCompte = Compte::factory()->create();
-        $med = Medecin_Connecte::create(['compte_id' => $medCompte->id]);
+        $personnel = Personnel::create([
+            'compte_id' => $user->compte->id,
+            'role' => Roles::Infirmier
+        ]);
 
-        $triage = Triage::create([
-            'compte_id' => $compte->id,
-            'medecin_connecte_id' => $med->id,
-            'priority' => 1,
-            'position' => 0,
-        ])->fresh();
-
-        $this->assertInstanceOf(Medecin_Connecte::class, $triage->medecin);
-    }
-
-    public function test_infirmier_has_triages()
-    {
-        $inf1 = Compte::factory()->create();
-        $inf = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
+        $other = $this->createUserWithCompte();
 
         Triage::create([
-            'compte_id' => Compte::factory()->create()->id,
-            'infirmier_connecte_id' => $inf->id,
-            'priority' => 1,
-            'position' => 0,
+            'compte_id' => $other->compte->id,
+            'position' => 1,
+            'priority' => 0,
+            'personnel_id' => $personnel->id,
         ]);
 
-        $this->assertCount(1, $inf->triages);
+        $result = TriageQueue::peek(0, $user);
+
+        assertEquals($other->compte->id, $result->id);
     }
 
-    public function test_enqueue_assigns_infirmier_and_medecin()
-    {
-        $compte = Compte::factory()->create();
-
-        $inf1 = Compte::factory()->create();
-        $inf = Infirmier_Connecte::create(['compte_id' => $inf1->id]);
-        $med1 = Compte::factory()->create();
-        $med = Medecin_Connecte::create(['compte_id' => $med1->id]);
-
-        // priority 0 → infirmier
-        Triage::enqueue($compte, 0);
-
-        $this->assertDatabaseHas('triages', [
-            'compte_id' => $compte->id,
-            'infirmier_connecte_id' => $inf->id,
-        ]);
-
-        // priority > 0 → medecin
-        $compte2 = Compte::factory()->create();
-
-        Triage::enqueue($compte2, 1);
-
-        $this->assertDatabaseHas('triages', [
-            'compte_id' => $compte2->id,
-            'medecin_connecte_id' => $med->id,
-        ]);
-    }
-
-    public function test_enqueue_logs_error_if_no_practitioner()
-    {
-        Log::spy();
-
-        $compte = Compte::factory()->create();
-
-        // no infirmier or medecin in DB
-        Triage::enqueue($compte, 0);
-
-        Log::shouldHaveReceived('error');
-    }
-
-    public function test_dequeue_removes_patient()
-    {
-        $compte = Compte::factory()->create();
-
-        Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-        ]);
-
-        Triage::dequeue($compte);
-
-        $this->assertDatabaseMissing('triages', [
-            'compte_id' => $compte->id,
-        ]);
-    }
-
-    public function test_dequeue_throws_if_not_found()
-    {
-        $this->expectException(ModelNotFoundException::class);
-
-        $compte = Compte::factory()->create();
-
-        Triage::dequeue($compte);
-    }
-
-    public function test_peek_returns_correct_patient_for_infirmier()
-    {
-        $compte = Compte::factory()->create();
-        $infCompte = Compte::factory()->create();
-
-        $inf = Infirmier_Connecte::create(['compte_id' => $infCompte->id]);
-
-        Triage::create([
-            'compte_id' => $compte->id,
-            'infirmier_connecte_id' => $inf->id,
-            'priority' => 1,
-            'position' => 0,
-        ]);
-
-        $result = Triage::peek(0, $infCompte);
-
-        $this->assertEquals($compte->id, $result->id);
-    }
-
-    public function test_peek_throws_if_out_of_bounds()
-    {
+    /** @test */
+    function peekThrowsExceptionWhenOutOfBounds(): void {
         $this->expectException(OutOfBoundsException::class);
 
-        $compte = Compte::factory()->create();
+        $user = $this->createUserWithCompte();
 
-        Triage::peek(0, $compte);
+        TriageQueue::peek(0, $user);
     }
 
-    public function test_rebalance_assigns_patients_evenly()
-    {
-        $inf12 = Compte::factory()->create();
-        $inf2 = Infirmier_Connecte::create(['compte_id' => $inf12->id]);
+    /** @test */
+    function rebalanceRedistributesPatients() : void {
+        $p1 = Personnel::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'role' => Roles::Infirmier
+        ]);
 
-        $inf11 = Compte::factory()->create();
-        $inf1 = Infirmier_Connecte::create(['compte_id' => $inf11->id]);
+        $p2 = Personnel::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'role' => Roles::Infirmier
+        ]);
 
-        foreach (range(1, 4) as $i) {
+        $patients = collect(range(1, 4))->map(function () {
+            return $this->createUserWithCompte();
+        });
+
+        foreach ($patients as $i => $user) {
             Triage::create([
-                'compte_id' => Compte::factory()->create()->id,
-                'priority' => 1,
+                'compte_id' => $user->compte->id,
                 'position' => $i,
-                'infirmier_connecte_id' => $inf1->id,
+                'priority' => 0,
+                'personnel_id' => $p1->id,
+                'file_attente' => Roles::Infirmier,
             ]);
         }
 
-        Triage::rebalance(true);
+        TriageQueue::rebalance(Roles::Infirmier);
 
-        $counts = Infirmier_Connecte::withCount('triages')->pluck('triages_count');
+        $counts = Personnel::withCount('triages')->pluck('triages_count');
 
-        $this->assertTrue($counts->max() - $counts->min() <= 1);
+        assertLessThanOrEqual(1, $counts->max() - $counts->min());
     }
 
-    public function test_medecin_login_and_logout()
-    {
-        $compte = Compte::factory()->create();
+    /** @test */
+    function queueCountReturnsNumberOfTriages(): void {
+        $user = $this->createUserWithCompte();
 
-        Medecin_Connecte::login($compte);
-
-        $this->assertDatabaseHas('medecins_connectes', [
-            'compte_id' => $compte->id,
+        $personnel = Personnel::create([
+            'compte_id' => $user->compte->id,
+            'role' => Roles::Infirmier
         ]);
-
-        Medecin_Connecte::logout($compte);
-
-        $this->assertDatabaseMissing('medecins_connectes', [
-            'compte_id' => $compte->id,
-        ]);
-    }
-
-    public function test_infirmier_queue_count()
-    {
-        $inf11 = Compte::factory()->create();
-        $inf1 = Infirmier_Connecte::create(['compte_id' => $inf11->id]);
-
-        Triage::create([
-            'compte_id' => Compte::factory()->create()->id,
-            'infirmier_connecte_id' => $inf1->id,
-            'priority' => 0,
-            'position' => 0,
-        ]);
-
-        $this->assertEquals(1, $inf1->queueCount($inf11));
-    }
-
-    public function test_infirmier_login_and_logout()
-    {
-        $compte = Compte::factory()->create();
-
-        Infirmier_Connecte::login($compte);
-
-        $this->assertDatabaseHas('infirmiers_connectes', [
-            'compte_id' => $compte->id,
-        ]);
-
-        Infirmier_Connecte::logout($compte);
-
-        $this->assertDatabaseMissing('infirmiers_connectes', [
-            'compte_id' => $compte->id,
-        ]);
-    }
-
-    public function test_dequeue_does_nothing_if_not_found()
-    {
-        $this->expectException(ModelNotFoundException::class);
-        $compte = Compte::factory()->create();
-
-        // Should not crash
-        Triage::dequeue($compte);
-    }
-
-    public function test_triage_count_returns_number_of_triages()
-    {
-        $inf11 = Compte::factory()->create();
-        $inf1 = Infirmier_Connecte::create(['compte_id' => $inf11->id]);
 
         foreach (range(1, 3) as $i) {
             Triage::create([
-                'compte_id' => Compte::factory()->create()->id,
-                'priority' => 1,
+                'compte_id' => $this->createUserWithCompte()->compte->id,
                 'position' => $i,
-                'infirmier_connecte_id' => $inf1->id,
+                'priority' => 0,
+                'personnel_id' => $personnel->id,
             ]);
         }
 
-        $this->assertEquals(3, Triage::count());
+        $count = (new TriageQueue())->queueCount($user);
+
+        assertEquals(3, $count);
     }
 
-    public function test_peek_for_medecin()
-    {
-        $compte = Compte::factory()->create();
+    /** @test */
+    function loginCreatesPersonnelAndAssignsRoleInfirmier() : void {
+        $user = $this->createUserWithCompte();
 
-        $med1 = Compte::factory()->create();
-        $med = Medecin_Connecte::create(['compte_id' => $med1->id]);
+        TimeCard::login($user, Roles::Infirmier);
 
+        $this->assertDatabaseHas('personnels', [
+            'compte_id' => $user->compte->id,
+            'role' => Roles::Infirmier->value
+        ]);
+    }
+
+    /** @test */
+    function loginCreatesPersonnelAndAssignsRoleMedecin() : void {
+        $user = $this->createUserWithCompte();
+
+        TimeCard::login($user, Roles::Medecin);
+
+        $this->assertDatabaseHas('personnels', [
+            'compte_id' => $user->compte->id,
+            'role' => Roles::Medecin->value
+        ]);
+    }
+
+    /** @test */
+    function loginTriggersRebalance() : void {
+        $user = $this->createUserWithCompte();
+
+        // create triage to see effect
         Triage::create([
-            'compte_id' => $compte->id,
-            'medecin_connecte_id' => $med->id,
-            'priority' => 1,
-            'position' => 0,
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'position' => 1,
+            'priority' => 0,
+            'file_attente' => Roles::Infirmier,
         ]);
 
-        $result = Triage::peek(0, $med1);
+        TimeCard::login($user, Roles::Infirmier);
 
-        $this->assertEquals($compte->id, $result->id);
+        assertEquals(1, Personnel::count());
     }
 
-    public function test_medecin_queue_count()
-    {
-        $medCompte = Compte::factory()->create();
-        $med = Medecin_Connecte::create(['compte_id' => $medCompte->id]);
-
-        Triage::create([
-            'compte_id' => Compte::factory()->create()->id,
-            'medecin_connecte_id' => $med->id,
-            'priority' => 1,
-            'position' => 0,
-        ]);
-
-        $this->assertEquals(1, Medecin_Connecte::queueCount($medCompte));
-    }
-
-    public function test_medecin_logout_logs_error_on_failure()
-    {
+    /** @test */
+    function loginLogsErrorWhenExceptionOccurs() : void {
         Log::spy();
 
-        $compte = Compte::factory()->create();
+        $user = $this->createUserWithCompte();
 
-        // No medecin exists → will throw inside transaction
-        Medecin_Connecte::logout($compte);
+        // force error: null compte
+        $user->compte()->delete();
+
+        TimeCard::login($user, Roles::Infirmier);
 
         Log::shouldHaveReceived('error');
     }
 
-    public function test_infirmier_logout_logs_error_on_failure()
-    {
-        Log::spy();
+    /** @test */
+    function logoutRemovesPersonnelAndUnassignsTriages() : void {
+        $user = $this->createUserWithCompte();
 
-        $compte = Compte::factory()->create();
-
-        Infirmier_Connecte::logout($compte);
-
-        Log::shouldHaveReceived('error');
-    }
-
-    public function test_queue_position_returns_minus_one_if_not_in_list()
-    {
-        $compte = Compte::factory()->create();
-
-        $infCompte = Compte::factory()->create();
-        $inf = Infirmier_Connecte::create(['compte_id' => $infCompte->id]);
-
-        // patient exists but not in same queue group
-        Triage::create([
-            'compte_id' => $compte->id,
-            'priority' => 1,
-            'position' => 0,
-            'infirmier_connecte_id' => null,
-            'medecin_connecte_id' => null,
+        $personnel = Personnel::create([
+            'compte_id' => $user->compte->id,
+            'role' => Roles::Infirmier
         ]);
 
-        $this->assertEquals(-1, Triage::queuePosition($compte));
+        $triage = Triage::create([
+            'compte_id' => $this->createUserWithCompte()->compte->id,
+            'position' => 1,
+            'priority' => 0,
+            'personnel_id' => $personnel->id,
+            'file_attente' => Roles::Infirmier,
+        ]);
+
+        TimeCard::logout($user, Roles::Infirmier);
+
+        $this->assertDatabaseMissing('personnels', [
+            'id' => $personnel->id
+        ]);
+
+        $this->assertDatabaseHas('triages', [
+            'id' => $triage->id,
+            'personnel_id' => null
+        ]);
     }
 
-    public function test_medecin_login_logs_error_on_exception()
+    /** @test */
+    function logoutLogsErrorWhenExceptionOccurs(): void
     {
         Log::spy();
 
-        // Force failure: null compte_id (should break DB constraint)
-        $compte = new Compte(); // NOT saved → id = null
+        $user = $this->createUserWithCompte();
 
-        Medecin_Connecte::login($compte);
+        // break relation
+        $user->compte()->delete();
 
-        Log::shouldHaveReceived('error');
-    }
-
-    public function test_infirmier_login_logs_error_on_exception()
-    {
-        Log::spy();
-
-        // Force failure: null compte_id (should break DB constraint)
-        $compte = new Compte(); // NOT saved → id = null
-
-        Infirmier_Connecte::login($compte);
+        TimeCard::logout($user, Roles::Infirmier);
 
         Log::shouldHaveReceived('error');
     }

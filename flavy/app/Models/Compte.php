@@ -7,40 +7,48 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Compte extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'nom',
+        'prenom',
+        'date_naissance',
+    ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function hasRole(string $role): bool
+
+    public function personnel(): HasOne
     {
-        return $this->user?->hasRole($role) ?? false;
+        return $this->hasOne(Personnel::class);
     }
+
+    public function triage(): HasOne
+    {
+        return $this->hasOne(Triage::class);
+    }
+
     public function adresses(): BelongsToMany
     {
-        return $this->belongsToMany(Adresse::class, 'adresse_user')
+        return $this->belongsToMany(Adresse::class, 'adresses_comptes')
             ->withPivot('type')
             ->withTimestamps();
     }
 
     public function telephones(): BelongsToMany
     {
-        return $this->belongsToMany(Telephone::class, 'telephone_user');
+        return $this->belongsToMany(Telephone::class, 'telephones_comptes');
     }
 
-    public function visitesPatient(): HasMany
+    public function visites(): HasMany
     {
         return $this->hasMany(Visite::class, 'patient_id');
-    }
-
-    public function visitesDocteur(): HasMany
-    {
-        return $this->hasMany(Visite::class, 'docteur_id');
     }
 }

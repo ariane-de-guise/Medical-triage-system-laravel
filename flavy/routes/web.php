@@ -1,18 +1,12 @@
 <?php
 
-use App\Models\Triage;
+use App\Algorithms\TriageQueue;
 use Illuminate\Support\Facades\Route;
 
-// Page d'accueil
 Route::get('/', function () {
     return view('welcome');
 });
 
-// ⚠️ IMPORTANT : activer l’auth
-//require __DIR__.'/auth.php';
-//require __DIR__.'/settings.php';
-
-// Routes protégées (Jetstream + Sanctum)
 use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -25,7 +19,7 @@ Route::middleware([
 
     // Dashboard
     Route::get('/dashboard', function () {
-        $user = \App\Models\User::find(auth()->user()->id);
+        $user = auth()->user();
         return view('dashboard', compact('user'));
     })->name('dashboard');
 
@@ -76,7 +70,7 @@ Route::middleware([
             $patient = auth()->user()->compte;
             abort_if(!$patient, 403);
 
-            Triage::enqueue($patient, 0);
+            TriageQueue::enqueue(auth()->user(), 0);
 
             return redirect()
                 ->route('patient')
@@ -87,23 +81,11 @@ Route::middleware([
             $patient = auth()->user()->compte;
             abort_if(!$patient, 403);
 
-            Triage::dequeue($patient);
+            TriageQueue::dequeue(auth()->user());
 
             return redirect()
                 ->route('patient')
                 ->with('success', 'Vous avez été retiré de la file d\'attente');
         })->name('patient.dequeue');
     });
-
-    /*
-    |--------------------------------------------------------------------------
-    | MULTI-ROLES
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware(['role:medecin|infirmier'])->group(function () {
-        Route::get('/patients', function () {
-            return 'Liste des patients';
-        })->name('patients.list');
-    });
-
 });

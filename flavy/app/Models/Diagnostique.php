@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Diagnostique extends Model
 {
@@ -11,8 +12,8 @@ class Diagnostique extends Model
 
     protected $fillable = ['patient_id', 'commentaire', 'description', 'date_heure', 'priorite'];
 
-    public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function patient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->belongsTo(Compte::class, 'patient_id');
     }
 }
