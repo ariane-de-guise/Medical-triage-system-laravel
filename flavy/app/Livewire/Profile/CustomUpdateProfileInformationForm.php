@@ -49,8 +49,8 @@ class CustomUpdateProfileInformationForm extends Component
             'email' => $user->email,
         ], $user->withoutRelations()->toArray());
 
-        $adresse = $user->compte->adresses->first();
-        $telephone = $user->compte->telephones->first();
+        $adresse = $user->compte->adresses()->first();
+        $telephone = $user->compte->telephones()->first();
 
         $this->state['nom'] = $user->compte->nom ?? '';
         $this->state['prenom'] = $user->compte->prenom ?? '';
@@ -61,7 +61,7 @@ class CustomUpdateProfileInformationForm extends Component
         $this->state['ville'] = $adresse->ville ?? '';
         $this->state['province'] = $adresse->province ?? '';
         $this->state['code_postal'] = $adresse->code_postal ?? '';
-        if ($adresse->type == 'maison') {
+        if (!$adresse || $adresse->type == 'maison') {
             $this->state['type'] = 'home';
         } else {
             $this->state['type'] = 'work';
