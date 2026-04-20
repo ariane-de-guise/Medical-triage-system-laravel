@@ -30,8 +30,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // 1️⃣ Validation
-        $request->validate([
+        $rules = [
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'nom' => 'required|string|max:255',
@@ -44,45 +43,73 @@ class RegisteredUserController extends Controller
             'code_postal' => 'nullable|string|max:20',
             'type' => 'nullable|string|max:50',
             'telephone' => 'nullable|string|max:20',
-        ]);
+        ];
+
+        if (Auth::check() && Auth::user()->hasRole('admin')) {
+            $rules['role'] = 'required|exists:roles,name';
+        }
+
+        $request->validate($rules);
+
+        $user = null;
 
         DB::transaction(function () use ($request, &$user) {
-            // 2️⃣ Créer l'utilisateur
+            // 1️⃣ Création user
             $user = User::create([
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
 
-            // 3️⃣ Créer le compte lié
             $compte = Compte::create([
                 'user_id' => $user->id,
                 'nom' => $request->nom,
                 'prenom' => $request->prenom,
                 'date_naissance' => $request->date_naissance,
             ]);
-            $user->assignRole('patient');
 
-            // 4️⃣ Créer et lier l'adresse
-            $adresse = Adresse::create([
-                'rue' => $request->rue,
-                'numero' => $request->numero,
-                'ville' => $request->ville,
-                'province' => $request->province,
-                'code_postal' => $request->code_postal,
-                'type' => $request->type,
-            ]);
-            $compte->adresses()->attach($adresse->id, ['type' => $request->type == 'travail' ? 'work' : 'home']);
+            $role = 'patient';
 
-            // 5️⃣ Créer et lier le téléphone
-            if ($request->telephone) {
-                $telephone = Telephone::create(['numero' => $request->telephone]);
+            if (Auth::check() && Auth::user()->hasRole('admin')) {
+                $role = $request->role;
+            }
+
+            $user->assignRole($role);
+
+            if ($request->rue || $request->ville || $request->code_postal) {
+                $adresse = Adresse::create([
+                    'rue' => $request->rue,
+                    'numero' => $request->numero,
+                    'ville' => $request->ville,
+                    'province' => $request->province,
+                    'code_postal' => $request->code_postal,
+                    'type' => $request->type,
+                ]);
+
+                $compte->adresses()->attach(
+                    $adresse->id,
+                    ['type' => $request->type === 'travail' ? 'work' : 'home']
+                );
+            }
+
+            if (!empty($request->telephone)) {
+                $telephone = Telephone::create([
+                    'numero' => $request->telephone
+                ]);
+
                 $compte->telephones()->attach($telephone->id);
             }
         });
 
-        // 6️⃣ Event + login
         event(new Registered($user));
-        Auth::login($user);
+
+        if (!Auth::check()) {
+            Auth::login($user);
+        }
+
+        if (Auth::check() && Auth::user()->hasRole('admin')) {
+            return redirect()->route('admin')
+                ->with('success', 'Utilisateur créé');
+        }
 
         return redirect()->route('dashboard');
     }

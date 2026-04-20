@@ -2,6 +2,7 @@
 
 use App\Algorithms\TriageQueue;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,16 @@ Route::middleware([
         Route::get('/admin', function () {
             return view('admin');
         })->name('admin');
+
+        Route::get('/admin/roles', function () {
+            return view('editrole');
+        })->name('admin.roles');
+
+        Route::post('/admin/roles/add', [UserController::class, 'addRole'])
+            ->name('admin.roles.add');
+
+        Route::post('/admin/roles/remove', [UserController::class, 'removeRole'])
+            ->name('admin.roles.remove');
     });
 
     /*
