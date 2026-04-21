@@ -39,6 +39,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         // 2️⃣ Email
         if ($input['email'] !== $user->email &&
             $user instanceof MustVerifyEmail) {
+            /** @var User $user */
             $user->forceFill([
                 'email' => $input['email'],
                 'email_verified_at' => null,
@@ -59,23 +60,19 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 
         // 4️⃣ Adresse
         $adresse = $user->compte->adresses()->first(); // récupère la première adresse
-        if ($adresse) {
-            $adresse->update([
-                'rue' => $input['rue'] ?? null,
-                'ville' => $input['ville'] ?? null,
-                'province' => $input['province'] ?? null,
-                'code_postal' => $input['code_postal'] ?? null,
-                'type' => $input['type'] ?? 'maison',
-            ]);
-        }
+        $adresse?->update([
+            'rue' => $input['rue'] ?? null,
+            'ville' => $input['ville'] ?? null,
+            'province' => $input['province'] ?? null,
+            'code_postal' => $input['code_postal'] ?? null,
+            'type' => $input['type'] ?? 'maison',
+        ]);
 
         // 5️⃣ Téléphone
         // 5️⃣ Téléphone
         $telephone = $user->compte->telephones()->first();
-        if ($telephone) {
-            $telephone->update([
-                'numero' => $input['telephone'] ?? null,
-            ]);
-        }
+        $telephone?->update([
+            'numero' => $input['telephone'] ?? null,
+        ]);
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('triages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('compte_id')->constrained('comptes')->onDelete('cascade')->unique();
+            $table->foreignId('compte_id')->unique()->constrained('comptes')->onDelete('cascade');
             $table->foreignId('personnel_id')->nullable()->constrained('personnels');
             $table->string('file_attente')->nullable();
             $table->integer('position');

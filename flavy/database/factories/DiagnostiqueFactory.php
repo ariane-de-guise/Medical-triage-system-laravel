@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Diagnostique;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class DiagnostiqueFactory extends Factory
@@ -28,7 +29,7 @@ class DiagnostiqueFactory extends Factory
     public function afterVisite($date_heure): self
     {
         return $this->state([
-            'date_heure' => \Carbon\Carbon::parse($date_heure)
+            'date_heure' => Carbon::parse($date_heure)
                 ->copy()
                 ->addHours(8),
         ]);

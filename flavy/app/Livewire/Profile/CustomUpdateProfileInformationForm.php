@@ -2,7 +2,11 @@
 
 namespace App\Livewire\Profile;
 
+use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -37,7 +41,7 @@ class CustomUpdateProfileInformationForm extends Component
      *
      * @return void
      */
-    public function mount()
+    public function mount(): void
     {
         $user = Auth::user();
 
@@ -45,8 +49,8 @@ class CustomUpdateProfileInformationForm extends Component
             'email' => $user->email,
         ], $user->withoutRelations()->toArray());
 
-        $adresse = $user->compte->adresses->first();
-        $telephone = $user->compte->telephones->first();
+        $adresse = $user->compte->adresses()->first();
+        $telephone = $user->compte->telephones()->first();
 
         $this->state['nom'] = $user->compte->nom ?? '';
         $this->state['prenom'] = $user->compte->prenom ?? '';
@@ -57,7 +61,7 @@ class CustomUpdateProfileInformationForm extends Component
         $this->state['ville'] = $adresse->ville ?? '';
         $this->state['province'] = $adresse->province ?? '';
         $this->state['code_postal'] = $adresse->code_postal ?? '';
-        if ($adresse->type == 'maison') {
+        if (!$adresse || $adresse->type == 'maison') {
             $this->state['type'] = 'home';
         } else {
             $this->state['type'] = 'work';
@@ -68,10 +72,10 @@ class CustomUpdateProfileInformationForm extends Component
     /**
      * Update the user's profile information.
      *
-     * @param  \Laravel\Fortify\Contracts\UpdatesUserProfileInformation  $updater
-     * @return \Illuminate\Http\RedirectResponse|null
+     * @param UpdatesUserProfileInformation $updater
+     * @return RedirectResponse|null
      */
-    public function updateProfileInformation(UpdatesUserProfileInformation $updater)
+    public function updateProfileInformation(UpdatesUserProfileInformation $updater): ?RedirectResponse
     {
         $this->resetErrorBag();
 
@@ -89,6 +93,7 @@ class CustomUpdateProfileInformationForm extends Component
         $this->dispatch('saved');
 
         $this->dispatch('refresh-navigation-menu');
+        return null;
     }
 
     /**
@@ -96,7 +101,7 @@ class CustomUpdateProfileInformationForm extends Component
      *
      * @return void
      */
-    public function deleteProfilePhoto()
+    public function deleteProfilePhoto(): void
     {
         Auth::user()->deleteProfilePhoto();
 
@@ -108,7 +113,7 @@ class CustomUpdateProfileInformationForm extends Component
      *
      * @return void
      */
-    public function sendEmailVerification()
+    public function sendEmailVerification(): void
     {
         Auth::user()->sendEmailVerificationNotification();
 
@@ -118,9 +123,9 @@ class CustomUpdateProfileInformationForm extends Component
     /**
      * Get the current user of the application.
      *
-     * @return mixed
+     * @return User|Authenticatable|null
      */
-    public function getUserProperty()
+    public function getUserProperty(): User|Authenticatable|null
     {
         return Auth::user();
     }
@@ -128,9 +133,9 @@ class CustomUpdateProfileInformationForm extends Component
     /**
      * Render the component.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
-    public function render()
+    public function render(): View
     {
         return view('profile.update-profile-information-form');
     }

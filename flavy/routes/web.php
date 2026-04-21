@@ -1,6 +1,9 @@
 <?php
 
+use App\Algorithms\Roles;
+use App\Algorithms\TimeCard;
 use App\Algorithms\TriageQueue;
+use App\Models\Compte;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -54,6 +57,74 @@ Route::middleware([
         Route::get('/medecin', function () {
             return view('medecin');
         })->name('medecin');
+
+        Route::post('/medecin/login', function () {
+            $medecin = auth()->user()->compte;
+            abort_if(!$medecin, 403);
+
+            try {
+                TimeCard::login(auth()->user(), Roles::Medecin);
+            }
+            catch (Exception $e) {
+                return redirect()
+                    ->route('medecin')
+                    ->with('error', 'Erreur lors de la connexion : ' . $e->getMessage());
+            }
+
+            return redirect()
+                ->route('medecin')
+                ->with('success', 'Vous êtes prêt à prendre des consultations.');
+        })->name('medecin.login');
+
+        Route::post('/medecin/logout', function () {
+            $medecin = auth()->user()->compte;
+            abort_if(!$medecin, 403);
+
+            try {
+                TimeCard::logout(auth()->user(), Roles::Medecin);
+            }
+            catch (Exception $e) {
+                return redirect()
+                    ->route('medecin')
+                    ->with('error', 'Erreur lors de la déconnexion : ' . $e->getMessage());
+            }
+
+            return redirect()
+                ->route('medecin')
+                ->with('success', 'Vous avez terminé de prendre des consultations.');
+        })->name('medecin.logout');
+
+        Route::post('/medecin/{compte}', function (Compte $compte) {
+            $medecin = auth()->user()->compte;
+            abort_if(!$medecin, 403);
+
+            return view('consultation', compact('compte'));
+        })->name('medecin.show');
+
+        Route::patch('/medecin/{compte}/next', function (Compte $compte) {
+            $medecin = auth()->user()->compte;
+            abort_if(!$medecin, 403);
+
+            $visite = $compte->visites()->latest('date_heure')->first();
+
+            abort_if(!$visite, 404);
+
+            $visite->diagnostique->update([
+                'description' => request('diagnostique'),
+                'date_heure' => now(),
+            ]);
+
+            try {
+                TriageQueue::dequeue($compte->user);
+            }
+            catch (Exception $e) {
+                return redirect()->with('error', 'Erreur lors de la sortie de la file : ' . $e->getMessage());
+            }
+
+            return redirect()
+                ->route('medecin')
+                ->with('success', 'Vous avez terminée cette consultation.');
+        })->name('medecin.next');
     });
 
     /*
@@ -81,7 +152,7 @@ Route::middleware([
             $patient = auth()->user()->compte;
             abort_if(!$patient, 403);
 
-            TriageQueue::enqueue(auth()->user(), 0);
+            TriageQueue::enqueue(auth()->user(), 0, "");
 
             return redirect()
                 ->route('patient')

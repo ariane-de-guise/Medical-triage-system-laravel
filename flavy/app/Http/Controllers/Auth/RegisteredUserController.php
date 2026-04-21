@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use App\Models\User;
 use App\Models\Compte;
 use App\Models\Adresse;
@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Throwable;
 
 class RegisteredUserController extends Controller
 {
@@ -27,6 +28,7 @@ class RegisteredUserController extends Controller
 
     /**
      * Handle an incoming registration request.
+     * @throws Throwable
      */
     public function store(Request $request): RedirectResponse
     {
