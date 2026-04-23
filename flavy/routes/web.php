@@ -3,6 +3,7 @@
 use App\Algorithms\Roles;
 use App\Algorithms\TimeCard;
 use App\Algorithms\TriageQueue;
+use App\Http\Controllers\InfirmierController;
 use App\Models\Compte;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -133,9 +134,11 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:infirmier'])->group(function () {
-        Route::get('/infirmier', function () {
-            return view('infirmier');
-        })->name('infirmier');
+        Route::get('/infirmier', [InfirmierController::class, 'index'])->name('infirmier');
+        Route::post('/infirmier/login', [InfirmierController::class, 'store'])->name('infirmier.login');
+        Route::delete('/infirmier/logout', [InfirmierController::class, 'destroy'])->name('infirmier.logout');
+        Route::get('/infirmier/{compte}', [InfirmierController::class, 'show'])->name('infirmier.show');
+        Route::post('/infirmier/{compte}/next', [InfirmierController::class, 'update'])->name('infirmier.next');
     });
 
     /*
