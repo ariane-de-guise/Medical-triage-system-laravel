@@ -19,10 +19,10 @@
             </style>
         @endif
     </head>
-    <body class="bg-gray-100 flex p-6 lg:p-8 items-center  min-h-screen flex-col">
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
+    <body class="bg-gray-100 flex items-center  min-h-screen flex-col pb-6">
+        <header class="w-full   text-sm mb-6 not-has-[nav]:hidden border-b py-6">
             @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
+                <nav class="flex items-center justify-center gap-4">
                     @auth
                         <a
                             href="{{ url('/dashboard') }}"
@@ -41,7 +41,7 @@
                         @if (Route::has('register'))
                             <a
                                 href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5  border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                                class="inline-block px-5 py-1.5  border-[#19140035] dark:hover:border-white border text-[#1b1b18] dark:border-[#3E3E3A] hover:bg-black hover:dark:text-white rounded-sm text-sm leading-normal">
                                 S'enregistrer
                             </a>
                         @endif
@@ -49,11 +49,13 @@
                 </nav>
             @endif
         </header>
-        <main class="w-full lg:max-w-4xl max-w-[335px] flex flex-col items-center">
+        <main class="w-full lg:max-w-4xl max-w-[335px] flex flex-col  gap-12 ">
                 <div class="w-full lg:max-w-4xl max-w-[335px]">
-                    <h1 class="text-3xl lg:text-5xl font-bold mb-6 text-center">
-                        Bienvenue sur le Centre de triage des hopitaux du Québec !
-                    </h1>
+                    <div class="text-3xl lg:text-5xl font-bold mb-8 py-6 text-center">
+                        <h1>
+                            Bienvenue sur le Centre de triage des hopitaux du Québec !
+                        </h1>
+                    </div>
 
                     <div class="flex justify-center">
                         <img
@@ -68,19 +70,24 @@
 
                 </div>
 
-                <div class="flex flex-col gap-8  w-full">
+                <div class="flex flex-col gap-8  w-full ">
 
                     <h1 class="text-3xl font-semibold">Liste de ressources</h1>
 
                     @foreach(config('ressources') as $categorie)
 
-                        <div class="flex flex-col ">
+                        <div class="flex flex-col gap-1.5 ">
                             <h2 class="text-2xl mb-2">{{$categorie["nom"]}}</h2>
 
                             @foreach($categorie["items"] as $ressource)
                                 <div class="flex flex-col gap-1.5 border dark:border-gray-500 rounded-lg p-4">
                                     <h3 class="text-xl">{{$ressource["nom"]}}</h3>
-                                    <a href={{$ressource["site"]}}><span class="font-semibold">Site Web : </span>{{$ressource["site"]}}</a>
+
+                                    @if($ressource["site"] == "Variable")
+                                     <span><span class="font-semibold">Site Web : </span>Variable</span>
+                                    @else
+                                        <a href={{$ressource["site"]}}><span class="font-semibold">Site Web : </span><span class="underline">{{$ressource["site"]}}</span></a>
+                                    @endif
                                     <p><span class="font-semibold">Numéro de téléphone : </span>{{$ressource["tel"]}}</p>
                                     <p><span class="font-semibold">Description : </span>{{$ressource["desc"]}}</p>
                                 </div>

@@ -14,7 +14,7 @@ return [
             [
                 'nom' => 'CLSC',
                 'tel' => 'Variable',
-                'site' => 'https://www.quebec.ca/sante/trouver-une-ressource/clsc',
+                'site' => 'https://sante.gouv.qc.ca/repertoire-ressources/clsc/',
                 'desc' => 'Les CLSC offrent des soins de santé de base (infirmières, vaccins, suivi médical,
                  services sociaux). Ils peuvent aussi intervenir à domicile ou dans la communauté.
                  C’est souvent le premier endroit où aller pour obtenir de l’aide.',
@@ -55,38 +55,38 @@ return [
                 'nom' => 'Tel-Aide',
                 'tel' => '514-935-1101',
                 'site' => 'https://telaide.org',
-                'desc' => 'Écoute anonyme 24/7',
+                'desc' => 'Tel-Aide est un service d’écoute gratuit, anonyme et disponible 24/7
+                pour les personnes en détresse émotionnelle ou qui ont besoin de parler.',
                 ],
             [
-                'nom' => 'Revivre',
-                'tel' => '1-866-738-4873',
-                'site' => 'https://revivre.org',
-                'desc' => 'Soutien anxiété / dépression',
+                'nom' => 'Relief',
+                'tel' => '1 514 529-3081',
+                'site' => 'https://relief.ca',
+                'desc' => 'Relief est un organisme qui aide les personnes vivant avec l’anxiété,
+                 la dépression ou le trouble bipolaire en offrant écoute, information et soutien
+                 pour mieux gérer leur santé mentale. Il propose aussi des ressources et des outils pour les proches.',
                 ],
              [
                 'nom' => 'Centre de crise de Québec',
                 'tel' => '418-683-4588',
                 'site' => 'https://www.centredecrisedequebec.com',
-                'desc' => 'Soutien en cas de crise aiguë',
+                'desc' => 'Le Centre de crise de Québec offre des services gratuits et confidentiels 24/7
+                 pour les personnes en situation de crise ou en détresse psychologique, avec écoute,
+                 intervention et hébergement temporaire au besoin.',
                  ],
-            [
-                'nom' => 'Relief',
-                'tel' => '1-866-738-4873',
-                'site' => 'https://www.centredecrisedequebec.com',
-                'desc' => 'Description : Organisme offrant entraide et outils pour mieux vivre avec anxiété,
-                dépression, bipolarité ou tout autres problème de santé mentale.',
-                ],
             [
                 'nom' => 'Jeunesse, J’écoute',
                 'tel' => '1-800-668-6868',
                 'site' => 'https://jeunessejecoute.ca',
-                'desc' => 'Aide pour les jeunes partout au Canada concernant la santé mentale et les émotions.',
+                'desc' => 'Jeunesse, J’écoute est un service gratuit, confidentiel et disponible 24/7 qui
+                 offre du soutien en santé mentale aux jeunes par téléphone, texto ou clavardage.',
                 ],
             [
                 'nom' => 'Ordre des psychologues du Québec',
                 'tel' => '514-738-1881',
                 'site' => 'https://www.ordrepsy.qc.ca',
-                'desc' => 'Permet de trouver un psychologue qualifié et obtenir de l’information.',
+                'desc' => 'Organisme qui encadre la pratique des psychologues au Québec et
+                aide le public à trouver des services professionnels en santé mentale.',
                 ],
             ]
     ],
@@ -97,19 +97,25 @@ return [
                 'nom' => 'Tel-jeunes',
                 'tel' => '1-800-263-2266',
                 'site' => 'https://teljeunes.com',
-                'desc' => 'Aide confidentielle jeunes',
+                'desc' => 'Tel-Jeunes est un service gratuit et confidentiel pour les jeunes
+                 qui offre écoute et soutien par téléphone, texto ou clavardage pour les
+                 aider avec leurs émotions, leurs problèmes ou leurs questionnements.',
             ],
             [
                 'nom' => 'LigneParents',
                 'tel' => '1-800-361-5085',
                 'site' => 'https://ligneparents.com',
-                'desc' => 'Aide pour parents',
+                'desc' => 'Ligne Parents est un service gratuit, confidentiel et disponible 24/7
+                 qui offre du soutien et des conseils aux parents d’enfants de 0 à 20 ans pour les
+                 aider dans leur rôle et faire face aux difficultés ou aux situations de crise.',
             ],
             [
-                'nom' => 'Maisons des jeunes',
+                'nom' => 'RMJQ – Regroupement des maisons des jeunes du Québec',
                 'tel' => 'Variable',
                 'site' => 'https://rmjq.org',
-                'desc' => 'Encadrement et soutien',
+                'desc' => 'Le RMJQ est un organisme qui soutient et regroupe les maisons des jeunes
+                 au Québec afin d’offrir aux adolescents des lieux d’échange, d’accompagnement et
+                 de développement personnel tout en défendant leurs droits et leur bien-être.',
                 ],
             ]
     ],
@@ -120,13 +126,16 @@ return [
                 'nom' => "J’arrête",
                 'tel' => '1-866-527-7383',
                 'site' => 'https://jarrete.qc.ca',
-                'desc' => 'Aide pour arrêter de fumer',
+                'desc' => 'J’Arrête est un service gratuit qui aide les personnes à arrêter de fumer
+                 ou vapoter grâce à du soutien personnalisé, des conseils et un accompagnement par téléphone ou en ligne.',
                 ],
             [
                 'nom' => "Alcooliques anonymes",
                 'tel' => 'Variable',
                 'site' => 'https://aa-quebec.org',
-                'desc' => 'Description : Groupes de soutien pour personnes ayant des problèmes d’alcool.',
+                'desc' => 'Les Alcooliques Anonymes offrent des réunions gratuites et confidentielles
+                 où des personnes s’entraident à arrêter de boire et à maintenir leur abstinence
+                 grâce au partage d’expérience et au soutien mutuel.',
                 ],
             ]
     ],
@@ -137,19 +146,25 @@ return [
                 'nom' => 'Diabète Québec',
                 'tel' => '1-800-361-3504',
                 'site' => 'https://www.diabete.qc.ca',
-                'desc' => 'Information et soutien pour les personnes atteintes de diabète.',
+                'desc' => 'Diabète Québec est un organisme qui offre information,
+                 soutien et accompagnement aux personnes vivant avec le diabète ainsi qu’à leurs proches,
+                  tout en favorisant la prévention et la recherche sur la maladie.',
             ],
             [
                 'nom' => 'Société canadienne du cancer',
                 'tel' => '1-888-939-3333',
                 'site' => 'https://cancer.ca',
-                'desc' => 'Ressources et soutien pour les personnes touchées par le cancer.',
+                'desc' => 'La Société canadienne du cancer offre de l’information,
+                 du soutien et des services aux personnes touchées par le cancer,
+                 tout en finançant la recherche et en agissant pour prévenir la maladie.',
             ],
             [
                 'nom' => 'Fondation des maladies du cœur',
                 'tel' => '1-888-473-4636',
                 'site' => 'https://coeuretavc.ca',
-                'desc' => 'Information sur les maladies cardiaques et prévention.',
+                'desc' => 'Cœur + AVC est un organisme qui informe, soutient et sensibilise
+                 la population sur les maladies du cœur et les AVC tout en finançant
+                  la recherche et en promouvant la prévention et les saines habitudes de vie.',
             ],
             [
                 'nom' => 'Société de la SLA du Québec',
@@ -163,15 +178,16 @@ return [
                 'nom' => 'Parkinson Québec',
                 'tel' => '1-800-720-1307',
                 'site' => 'https://parkinsonquebec.ca',
-                'desc' => 'Service pour les personnes sans médecin de famille.
-                 Soutien aux personnes atteintes de Parkinson.',
+                'desc' => 'Parkinson Québec est un organisme qui offre information,
+                soutien et ressources aux personnes atteintes de la maladie de Parkinson ainsi
+                qu’à leurs proches, tout en sensibilisant la population et en finançant la recherche.',
             ],
             [
                 'nom' => 'Alzheimer Québec',
                 'tel' => '1-888-636-6473',
                 'site' => 'https://alzheimer.ca/qc',
-                'desc' => 'Service pour les personnes sans médecin de famille.
-                 Ressources pour les personnes atteintes et leurs proches.',
+                'desc' => 'Organisme qui offre soutien, information et services aux personnes atteintes de la maladie
+                 d’Alzheimer et à leurs proches, tout en contribuant à la sensibilisation et à la recherche.',
             ],
         ]
     ],
@@ -182,19 +198,25 @@ return [
                 'nom' => 'Centres de femmes',
                 'tel' => 'Aucun',
                 'site' => 'https://rcentres.qc.ca',
-                'desc' => 'Soutien global santé',
+                'desc' => 'Organisme qui regroupe et soutient les centres de femmes
+                 au Québec en offrant des ressources, de l’information et
+                  en défendant les droits et le bien-être des femmes.',
                 ],
             [
                 'nom' => 'SOS violence conjugale',
                 'tel' => '1-800-363-9010',
                 'site' => 'https://sosviolenceconjugale.ca',
-                'desc' => 'Ligne d’aide 24/7 pour les personnes vivant de la violence conjugale.',
+                'desc' => 'SOS violence conjugale est un service gratuit, confidentiel et disponible 24/7
+                 qui offre écoute, soutien et référence aux personnes touchées par la violence conjugale,
+                  incluant l’accès à des ressources comme des maisons d’hébergement.',
                 ],
             [
                 'nom' => 'Info-aide violence sexuelle',
                 'tel' => '1-888-933-9007',
                 'site' => 'https://infoaideviolencesexuelle.ca',
-                'desc' => 'Soutien confidentiel pour victimes de violence sexuelle.',
+                'desc' => 'Service gratuit, confidentiel et disponible 24/7 qui offre écoute,
+                 soutien et référence aux personnes touchées par la violence sexuelle, incluant
+                  les victimes, leurs proches et les intervenants.',
                 ],
             ]
     ],
