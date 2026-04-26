@@ -2,6 +2,8 @@
 
 
 use App\Algorithms\AfflictionMatcher;
+use App\Algorithms\AlgorithmePriorite;
+use App\Algorithms\Symptomes;
 use Illuminate\Foundation\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -96,5 +98,16 @@ class AfflictionMatcherTest extends TestCase
 
         $this->assertNotEmpty($result);
         $this->assertEquals(0.0, $result[0]['percentage']);
+    }
+
+    #[Test]
+    public function returnRightPriority(): void
+    {
+        $inputSymptomes = [Symptomes::ARRET_CARDIAQUE, Symptomes::ARRET_RESPIRATOIRE];
+
+        $result = AlgorithmePriorite::calculer($inputSymptomes);
+
+        $this->assertNotEmpty($result);
+        $this->assertEquals(1, $result['priorite']);
     }
 }
