@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Algorithms\AlgorithmePriorite;
 use App\Algorithms\Roles;
 use App\Algorithms\TimeCard;
 use App\Algorithms\TriageQueue;
@@ -56,10 +57,11 @@ class InfirmierController extends Controller
         $infirmier = auth()->user()->compte;
         abort_if(!$infirmier, 403);
 
-        $priorite = $request->priorite;
         $symptomes = $request->symptomes;
+        $priorite = null;
 
         if ($symptomes) {
+            $priorite = AlgorithmePriorite::calculer($symptomes);
             $symptomes = implode(', ', $symptomes);
         }
 
@@ -75,7 +77,6 @@ class InfirmierController extends Controller
             'priorite' => 'required|integer',
             'symptomes' => 'required|string'
         ]);
-
 
         $commentaire = $request->commentaire;
         $priorite = $request->priorite;
