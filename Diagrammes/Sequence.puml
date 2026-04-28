@@ -1,0 +1,40 @@
+== Part 1: Patient ==
+@startuml
+actor Patient
+actor Infirmière
+actor Médecin
+boundary "Site web" as UI
+database "BD" as DB
+Patient -> UI : création d'un compte
+UI-> DB : ajout du compte
+DB--> UI : confirmation de la création du compte
+UI --> Patient : peut accèder au site web
+Patient -> UI : se connecter au site web
+UI -> DB : verification de la connexion
+DB --> UI : confirmation
+UI --> Patient : recevoir des notifications sur le temps d'attente
+UI --> Patient : consulter les renseignements sur un dossier
+UI --> Patient : savoir quand me présenter au rendez-vous
+UI --> Patient : voir l'historique des professionnels consultés précédemment
+ 
+== Part 2: Infirmière ==
+
+Infirmière -> UI : se connecter au site web
+UI -> DB : verification de la connexion
+DB --> UI : confirmation
+UI --> Infirmière : pouvoir ajouter et modifier les informations sur le dossier
+UI --> Infirmière : consulter les renseignements sur un dossier
+UI --> Infirmière : avoir une recommandation du niveau de priorité
+UI --> Infirmière : voir l'historique des professionnels consultés précédemment
+UI --> Infirmière : voir la liste des patients
+
+== Part 2: Médecin ==
+
+Médecin -> UI : se connecter au site web
+UI -> DB : verification de la connexion
+DB --> UI : confirmation
+UI --> Médecin : pouvoir ajouter et modifier les informations sur le dossier
+UI --> Médecin : consulter les renseignements sur un dossier
+UI --> Médecin : voir l'historique des professionnels consultés précédemment
+UI --> Médecin : voir la liste des patients
+@enduml
