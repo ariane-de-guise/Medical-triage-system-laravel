@@ -103,11 +103,23 @@ class AfflictionMatcherTest extends TestCase
     #[Test]
     public function returnRightPriority(): void
     {
-        $inputSymptomes = [Symptomes::ARRET_CARDIAQUE, Symptomes::ARRET_RESPIRATOIRE];
+        $inputSymptomes = [Symptomes::SIFFLEMENT->value, Symptomes::TOUX->value];
 
         $result = AlgorithmePriorite::calculer($inputSymptomes);
 
         $this->assertNotEmpty($result);
-        $this->assertEquals(1, $result['priorite']);
+        $this->assertEquals(3, $result['priorite']);
+
+        $inputSymptomes = [Symptomes::SIFFLEMENT->value];
+        $result = AlgorithmePriorite::calculer($inputSymptomes);
+
+        $this->assertNotEmpty($result);
+        $this->assertEquals(2, $result['priorite']);
+
+        $inputSymptomes = [Symptomes::ARRET_CARDIAQUE->value];
+        $result = AlgorithmePriorite::calculer($inputSymptomes);
+
+        $this->assertNotEmpty($result);
+        $this->assertEquals(5, $result['priorite']);
     }
 }

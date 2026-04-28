@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-green-100 p-6 rounded shadow">
                 <h3 class="text-lg font-medium mb-2">Espace Médecin</h3>
-                @if (\App\Algorithms\TimeCard::loggedin(auth()->user()))
+                @if (\App\Algorithms\TimeCard::loggedin(auth()->user(), \App\Algorithms\Roles::Medecin))
                     <form method="POST" action="{{ route('medecin.next', $compte) }}">
                         @csrf
                         @method('PATCH')
@@ -36,7 +36,7 @@
                     <h2 class="text-md font-medium mb-2">Vous n'êtes pas connecté.</h2>
                 @endif
                 <hr class="my-6 border-gray-300">
-                <a href="{{ url('/medecin') }}" class="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded">Retour à la file d'attente</a>
+                <a href="{{ route('medecin') }}" class="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded">Retour à la file d'attente</a>
             </div>
         </div>
     </div>
