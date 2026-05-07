@@ -206,6 +206,7 @@ class TriageQueue
      */
     public static function enqueued(User $user): bool {
         $compte = $user->compte;
+        Email::send();
         return Triage::where('compte_id', $compte->id)->exists();
     }
 
