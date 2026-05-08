@@ -15,7 +15,7 @@
                 <div><x-label for="password_confirmation" value="Confirmation" class="hospital-label"/><x-input id="password_confirmation" type="password" name="password_confirmation" class="hospital-input" required /></div>
                 <div><x-label for="nom" value="Nom" class="hospital-label"/><x-input id="nom" type="text" name="nom" :value="old('nom')" class="hospital-input" required /></div>
                 <div><x-label for="prenom" value="Prénom" class="hospital-label"/><x-input id="prenom" type="text" name="prenom" :value="old('prenom')" class="hospital-input" required /></div>
-                <div><x-label for="date_naissance" value="Date de naissance" class="hospital-label"/><x-input id="date_naissance" type="date" name="date_naissance" :value="old('date_naissance')" class="hospital-input" required /></div>
+                <div><x-label for="date_naissance" value="Date de naissance" class="hospital-label"/><x-input id="date_naissance" type="date" max="{{ now()->format('Y-m-d') }}" name="date_naissance" :value="old('date_naissance')" class="hospital-input" required /></div>
                 <div><x-label for="telephone" value="Téléphone" class="hospital-label"/><x-input id="telephone" type="text" name="telephone" :value="old('telephone')" class="hospital-input" /></div>
                 <div><x-label for="numero" value="Numéro" class="hospital-label"/><x-input id="numero" type="number" name="numero" :value="old('numero')" class="hospital-input" /></div>
                 <div><x-label for="rue" value="Rue" class="hospital-label"/><x-input id="rue" type="text" name="rue" :value="old('rue')" class="hospital-input" /></div>

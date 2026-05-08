@@ -33,7 +33,7 @@
 
         <div class="col-span-6 sm:col-span-3"><x-label for="prenom" value="Prénom" /><x-input id="prenom" type="text" wire:model="state.prenom" /></div>
         <div class="col-span-6 sm:col-span-3"><x-label for="nom" value="Nom" /><x-input id="nom" type="text" wire:model="state.nom" /></div>
-        <div class="col-span-6 sm:col-span-3"><x-label for="date_naissance" value="Date de naissance" /><x-input id="date_naissance" type="date" wire:model="state.date_naissance" /></div>
+        <div class="col-span-6 sm:col-span-3"><x-label for="date_naissance" value="Date de naissance" /><x-input id="date_naissance" type="date" max="{{ now()->format('Y-m-d') }}" wire:model="state.date_naissance" /></div>
         <div class="col-span-6 sm:col-span-3"><x-label for="email" value="Email" /><x-input id="email" type="email" wire:model="state.email" required /></div>
 
         <div class="col-span-6"><div class="h-px bg-slate-100"></div></div>
