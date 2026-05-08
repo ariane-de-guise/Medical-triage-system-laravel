@@ -23,6 +23,20 @@ class MedecinController extends Controller
         $medecin = auth()->user()->compte;
         abort_if(!$medecin, 403);
 
+        $personnelActif = $medecin->personnel;
+
+        if ($personnelActif && $personnelActif->role === Roles::Infirmier) {
+            return redirect()
+                ->route('medecin')
+                ->with('error', 'Vous êtes déjà en service comme infirmier. Vous devez terminer le triage avant de vous connecter comme médecin.');
+        }
+
+        if ($personnelActif && $personnelActif->role === Roles::Medecin) {
+            return redirect()
+                ->route('medecin')
+                ->with('success', 'Vous êtes déjà en service comme médecin.');
+        }
+
         try {
             TimeCard::login(auth()->user(), Roles::Medecin);
         }

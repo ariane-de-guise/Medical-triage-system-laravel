@@ -32,4 +32,20 @@ class PatientController extends Controller
             ->route('patient')
             ->with('success', 'Vous avez été retiré de la file d\'attente');
     }
+    public function liste()
+    {
+        $patients = \App\Models\User::whereHas('compte')
+            ->with('compte')
+            ->get();
+
+        return view('patients.liste', compact('patients'));
+    }
+    public function show($id)
+    {
+        $patient = \App\Models\User::whereHas('compte')
+            ->with('compte')
+            ->findOrFail($id);
+
+        return view('patients.show', compact('patient'));
+    }
 }

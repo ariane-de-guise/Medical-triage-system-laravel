@@ -1,87 +1,35 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Espace Patient') }}
-        </h2>
-    </x-slot>
-
-    @if(session('success'))
-        <div class="bg-green-200 text-green-800 p-2 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-purple-100 p-6 rounded shadow">
-                <h3 class="text-lg font-medium mb-2">Espace Patient</h3>
-                @if (\App\Algorithms\TriageQueue::enqueued(auth()->user()))
-                    <p>Vous êtes à la position {{ \App\Algorithms\TriageQueue::queuePosition(auth()->user()) }} dans la file.</p>
-                    <form method="POST" action="{{ route('patient.dequeue') }}">
-                        @csrf
-                        <button type="submit" class="inline-block mt-4 mb-2 px-4 py-2 bg-purple-500 text-white rounded">
-                            Sortir de la file d'attente
-                        </button>
-                    </form>
-                @else
-                    <form method="POST" action="{{ route('patient.enqueue') }}">
-                        @csrf
-                        <button type="submit" class="inline-block mt-4 mb-2 px-4 py-2 bg-purple-500 text-white rounded">
-                            Je suis à l'hôpital
-                        </button>
-                    </form>
-                @endif
-                <hr class="my-6 border-gray-300">
-                <h2 class="text-md font-medium mb-2">Visites précédentes</h2>
-                @if(auth()->user()->compte->visites()->count() === 0)
-                    <p>Aucune visite enregistrée.</p>
-                @else
-                    <div class="space-y-6">
-                        @foreach(auth()->user()->compte->visites()->orderByDesc('date_heure')->get() as $visite)
-                            <div class="bg-white shadow-md rounded-xl p-5 border border-gray-200">
-
-                                <div class="flex justify-between items-center mb-3">
-                                    <h4 class="font-semibold text-lg text-gray-800">
-                                        Visite du {{ \Carbon\Carbon::parse($visite->date_heure)->format('d/m/Y H:i') }}
-                                    </h4>
-                                    <span class="text-sm px-3 py-1 rounded-full bg-purple-100 text-purple-700">
-                                        Priorité {{ $visite->diagnostique->priorite }}
-                                    </span>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-
-                                    <div>
-                                        <p><span class="font-semibold">👨‍⚕️ Docteur :</span><br>
-                                            {{ $visite->docteur->prenom }} {{ $visite->docteur->nom }}
-                                        </p>
-
-                                        <p class="mt-2">
-                                            <span class="font-semibold">🩺 Diagnostic :</span><br>
-                                            {{ $visite->diagnostique->commentaire }}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p>
-                                            <span class="font-semibold">💊 Traitement :</span><br>
-                                            {{ $visite->diagnostique->description }}
-                                        </p>
-
-                                        <p class="mt-2 text-xs text-gray-500">
-                                            Diagnostiqué le {{ \Carbon\Carbon::parse($visite->diagnostique->date_heure)->format('d/m/Y H:i') }}
-                                        </p>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-                <hr class="my-6 border-gray-300">
-                <a href="{{ url('/dashboard') }}" class="inline-block mt-4 px-4 py-2 bg-purple-500 text-white rounded">Retour au Dashboard</a>
+<x-slot name="header"><div><p class="hospital-badge">Patient</p><h2 class="mt-3 text-4xl font-black text-slate-950">Mes rendez-vous</h2><p class="mt-2 text-slate-500">File d'attente, statut et historique de visites.</p></div></x-slot>
+@if(session('success'))<div class="mb-6 hospital-card border-green-200 bg-green-50 p-4 font-bold text-green-800">{{ session('success') }}</div>@endif
+<div class="grid gap-6 xl:grid-cols-[.9fr_1.3fr]">
+    <section class="hospital-card p-7">
+        <h3 class="text-2xl font-black">Votre arrivée</h3>
+        @if (\App\Algorithms\TriageQueue::enqueued(auth()->user()))
+            <div class="mt-6 rounded-[2rem] bg-gradient-to-br from-blue-950 to-cyan-600 p-8 text-center text-white">
+                <p class="text-sm font-bold uppercase tracking-[.2em] text-cyan-100">Position</p>
+                <p class="mt-3 text-7xl font-black">{{ \App\Algorithms\TriageQueue::queuePosition(auth()->user()) }}</p>
+                <p class="mt-3 text-blue-50">Restez disponible près de la salle d'attente.</p>
             </div>
-        </div>
-    </div>
+            <form method="POST" action="{{ route('patient.dequeue') }}" class="mt-5">@csrf<button type="submit" class="hospital-btn-soft w-full">Sortir de la file d'attente</button></form>
+        @else
+            <div class="mt-6 rounded-[2rem] bg-slate-50 p-7"><p class="font-bold text-slate-700">Vous n'êtes pas encore dans la file.</p><p class="mt-2 text-slate-500">Cliquez lorsque vous êtes arrivé à l'hôpital.</p></div>
+            <form method="POST" action="{{ route('patient.enqueue') }}" class="mt-5">@csrf<button type="submit" class="hospital-btn w-full">Je suis à l'hôpital</button></form>
+        @endif
+    </section>
+    <section class="hospital-card p-7">
+        <div class="flex items-center justify-between"><h3 class="text-2xl font-black">Visites précédentes</h3><span class="hospital-badge">Historique</span></div>
+        @if(auth()->user()->compte->visites()->count() === 0)
+            <div class="mt-6 rounded-3xl border-2 border-dashed border-slate-200 p-10 text-center text-slate-500">Aucune visite enregistrée.</div>
+        @else
+            <div class="mt-6 space-y-4">
+                @foreach(auth()->user()->compte->visites()->orderByDesc('date_heure')->get() as $visite)
+                    <article class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><h4 class="text-lg font-black text-slate-900">Visite du {{ \Carbon\Carbon::parse($visite->date_heure)->format('d/m/Y H:i') }}</h4><span class="hospital-badge">Priorité {{ $visite->diagnostique->priorite }}</span></div>
+                        <div class="mt-4 grid gap-4 md:grid-cols-2 text-sm text-slate-600"><p><strong class="text-slate-900">Docteur</strong><br>{{ $visite->docteur->prenom }} {{ $visite->docteur->nom }}</p><p><strong class="text-slate-900">Commentaire infirmière</strong><br>{{ $visite->diagnostique->commentaire ?: 'Aucun commentaire' }}</p><p class="md:col-span-2"><strong class="text-slate-900">Diagnostic / traitement</strong><br>{{ ($visite->diagnostique->description && $visite->diagnostique->description !== 'À remplir') ? $visite->diagnostique->description : 'Non renseigné' }}</p></div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
+</div>
 </x-app-layout>

@@ -18,8 +18,22 @@ class InfirmierController extends Controller
     }
 
     public function store() {
-        $medecin = auth()->user()->compte;
-        abort_if(!$medecin, 403);
+        $infirmier = auth()->user()->compte;
+        abort_if(!$infirmier, 403);
+
+        $personnelActif = $infirmier->personnel;
+
+        if ($personnelActif && $personnelActif->role === Roles::Medecin) {
+            return redirect()
+                ->route('infirmier')
+                ->with('error', 'Vous êtes déjà en service comme médecin. Vous devez terminer les consultations avant de vous connecter comme infirmier.');
+        }
+
+        if ($personnelActif && $personnelActif->role === Roles::Infirmier) {
+            return redirect()
+                ->route('infirmier')
+                ->with('success', 'Vous êtes déjà en service comme infirmier.');
+        }
 
         try {
             TimeCard::login(auth()->user(), Roles::Infirmier);
@@ -36,8 +50,8 @@ class InfirmierController extends Controller
     }
 
     public function destroy() {
-        $medecin = auth()->user()->compte;
-        abort_if(!$medecin, 403);
+        $infirmier = auth()->user()->compte;
+        abort_if(!$infirmier, 403);
 
         try {
             TimeCard::logout(auth()->user(), Roles::Infirmier);

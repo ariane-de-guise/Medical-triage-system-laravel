@@ -1,43 +1,14 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Espace Médecin') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-green-100 p-6 rounded shadow">
-                <h3 class="text-lg font-medium mb-2">Espace Médecin</h3>
-                @if (\App\Algorithms\TimeCard::loggedin(auth()->user(), \App\Algorithms\Roles::Medecin))
-                    <form method="POST" action="{{ route('medecin.next', $compte) }}">
-                        @csrf
-                        @method('PATCH')
-                        <hr class="my-6 border-gray-300">
-                        <h2 class="text-md font-medium mb-2">{{ $compte->prenom }} {{ $compte->nom }}</h2>
-                        <br>
-                        <p><span class="font-semibold">Date de début de la visite :</span><br>
-                            {{ $compte->visites()->latest('date_heure')->value('date_heure') }}
-                        </p>
-                        <br>
-                        <p>
-                            <span class="font-semibold">Commentaires de l'infirmière :</span><br>
-                            {{ $compte->visites()->latest('date_heure')->first()?->diagnostique->commentaire }}
-                        </p>
-                        <br>
-                        <x-label for="diagnostique" value="{{ __('Diagnostic') }}" class="mt-4" />
-                        <x-input id="diagnostique" type="text" class="mt-1 block w-full" name="diagnostique" required />
-                        <br>
-                        <button type="submit" class="inline-block mt-4 mb-2 px-4 py-2 bg-green-500 text-white rounded">
-                            Terminer la consultation de ce patient
-                        </button>
-                    </form>
-                @else
-                    <h2 class="text-md font-medium mb-2">Vous n'êtes pas connecté.</h2>
-                @endif
-                <hr class="my-6 border-gray-300">
-                <a href="{{ route('medecin') }}" class="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded">Retour à la file d'attente</a>
-            </div>
-        </div>
-    </div>
+<x-slot name="header"><div><p class="hospital-badge">Consultation médecin</p><h2 class="mt-3 text-4xl font-black text-slate-950">{{ $compte->prenom }} {{ $compte->nom }}</h2></div></x-slot>
+<section class="hospital-card p-7">
+@if (\App\Algorithms\TimeCard::loggedin(auth()->user(), \App\Algorithms\Roles::Medecin))
+<form method="POST" action="{{ route('medecin.next', $compte) }}">@csrf @method('PATCH')
+    <div class="grid gap-5 lg:grid-cols-3"><div class="rounded-3xl bg-slate-50 p-5"><p class="text-sm font-bold text-slate-500">Début de visite</p><p class="mt-2 font-black">{{ $compte->visites()->latest('date_heure')->value('date_heure') }}</p></div><div class="rounded-3xl bg-slate-50 p-5 lg:col-span-2"><p class="text-sm font-bold text-slate-500">Commentaires infirmière</p><p class="mt-2 text-slate-700">{{ $compte->visites()->latest('date_heure')->first()?->diagnostique->commentaire }}</p></div></div>
+    <div class="mt-6"><x-label for="diagnostique" value="Diagnostic / traitement" class="hospital-label"/><textarea id="diagnostique" name="diagnostique" rows="6" class="hospital-input" required></textarea></div>
+    <div class="mt-6 flex gap-3"><button class="hospital-btn">Terminer la consultation</button><a href="{{ route('medecin') }}" class="hospital-btn-soft">Retour</a></div>
+</form>
+@else
+<div class="rounded-3xl bg-slate-50 p-8 text-center font-bold text-slate-600">Vous n'êtes pas connecté.</div>
+@endif
+</section>
 </x-app-layout>

@@ -25,6 +25,9 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+            'date_naissance' => ['required', 'date', 'before_or_equal:today'],
+        ], [
+            'date_naissance.before_or_equal' => 'La date de naissance ne peut pas être dans le futur.',
         ])->validate();
 
         // 1️⃣ Create user
