@@ -13,23 +13,45 @@ use Illuminate\Routing\Controller;
 
 class InfirmierController extends Controller
 {
-    public function index() {
-        return view('infirmier.index');
+    public function index()
+    {
+        $user = auth()->user();
+        $compte = $user->compte;
+
+        abort_if(!$compte, 403);
+
+        $estInfirmierActif = TimeCard::loggedin($user, Roles::Infirmier);
+        $estMedecinActif = TimeCard::loggedin($user, Roles::Medecin);
+
+        $patients = [];
+
+        if ($estInfirmierActif) {
+            $nombrePatients = TriageQueue::queueCount($user);
+
+            for ($i = 0; $i < $nombrePatients; $i++) {
+                $patients[] = TriageQueue::peek($i, $user);
+            }
+        }
+
+        return view('infirmier.index', compact(
+            'estInfirmierActif',
+            'estMedecinActif',
+            'patients'
+        ));
     }
 
-    public function store() {
+    public function store()
+    {
         $infirmier = auth()->user()->compte;
         abort_if(!$infirmier, 403);
 
-        $personnelActif = $infirmier->personnel;
-
-        if ($personnelActif && $personnelActif->role === Roles::Medecin) {
+        if (TimeCard::loggedin(auth()->user(), Roles::Medecin)) {
             return redirect()
                 ->route('infirmier')
                 ->with('error', 'Vous êtes déjà en service comme médecin. Vous devez terminer les consultations avant de vous connecter comme infirmier.');
         }
 
-        if ($personnelActif && $personnelActif->role === Roles::Infirmier) {
+        if (TimeCard::loggedin(auth()->user(), Roles::Infirmier)) {
             return redirect()
                 ->route('infirmier')
                 ->with('success', 'Vous êtes déjà en service comme infirmier.');
@@ -37,8 +59,7 @@ class InfirmierController extends Controller
 
         try {
             TimeCard::login(auth()->user(), Roles::Infirmier);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return redirect()
                 ->route('infirmier')
                 ->with('error', 'Erreur lors de la connexion : ' . $e->getMessage());
@@ -46,17 +67,17 @@ class InfirmierController extends Controller
 
         return redirect()
             ->route('infirmier')
-            ->with('success', 'Vous êtes prêt à prendre des consultations.');
+            ->with('success', 'Vous êtes prêt à faire le triage.');
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         $infirmier = auth()->user()->compte;
         abort_if(!$infirmier, 403);
 
         try {
             TimeCard::logout(auth()->user(), Roles::Infirmier);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return redirect()
                 ->route('infirmier')
                 ->with('error', 'Erreur lors de la déconnexion : ' . $e->getMessage());
@@ -64,10 +85,11 @@ class InfirmierController extends Controller
 
         return redirect()
             ->route('infirmier')
-            ->with('success', 'Vous avez terminé de prendre des consultations.');
+            ->with('success', 'Vous avez terminé le triage.');
     }
 
-    public function show(Request $request, Compte $compte) {
+    public function show(Request $request, Compte $compte)
+    {
         $infirmier = auth()->user()->compte;
         abort_if(!$infirmier, 403);
 
@@ -82,30 +104,33 @@ class InfirmierController extends Controller
         return view('infirmier.consultation', compact('compte', 'priorite', 'symptomes'));
     }
 
-    public function update(Request $request, Compte $compte) {
+    public function update(Request $request, Compte $compte)
+    {
         $infirmier = auth()->user()->compte;
         abort_if(!$infirmier, 403);
 
         $request->validate([
             'commentaire' => 'required|string',
             'priorite' => 'required|integer',
-            'symptomes' => 'required|string'
+            'symptomes' => 'required|string',
         ]);
-
-        $commentaire = $request->commentaire;
-        $priorite = $request->priorite;
-        $symptomes = $request->symptomes;
 
         try {
             TriageQueue::dequeue($compte->user);
-            TriageQueue::enqueue($compte->user, $priorite, ($commentaire . ' --- Symptômes : ' . $symptomes));
-        }
-        catch (Exception $e) {
-            return redirect()->with('error', 'Erreur lors de l\'entrée de la file : ' . $e->getMessage());
+
+            TriageQueue::enqueue(
+                $compte->user,
+                $request->priorite,
+                $request->commentaire . ' --- Symptômes : ' . $request->symptomes
+            );
+        } catch (Exception $e) {
+            return redirect()
+                ->route('infirmier')
+                ->with('error', 'Erreur lors de l’entrée dans la file : ' . $e->getMessage());
         }
 
         return redirect()
             ->route('infirmier')
-            ->with('success', 'Vous avez terminée cette consultation.');
+            ->with('success', 'Vous avez terminé cette consultation.');
     }
 }

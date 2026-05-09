@@ -11,8 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
         <link rel="shortcut icon" href="{{ asset('logo/CTHQ.png') }}" type="image/x-icon">
 
-        <!-- Styles / Scripts -->
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @if (file_exists(public_path('build/manifest.json')))
             @vite(['resources/css/app.css'])
         @else
             <style>
@@ -25,24 +24,16 @@
             @if (Route::has('login'))
                 <nav class="flex items-center justify-center gap-4">
                     @auth
-                        <a
-                            href="{{ url('/dashboard') }}"
-                            class="inline-block px-5 py-1.5 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                        >
+                        <a href="{{ url('/dashboard') }}" class="inline-block px-5 py-1.5 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
                             Dashboard
                         </a>
                     @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-block px-5 py-1.5 text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
-                        >
+                        <a href="{{ route('login') }}" class="inline-block px-5 py-1.5 text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal">
                             Se connecter
                         </a>
 
                         @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5  border-[#19140035] dark:hover:border-white border text-[#1b1b18] dark:border-[#3E3E3A] hover:bg-black hover:dark:text-white rounded-sm text-sm leading-normal">
+                            <a href="{{ route('register') }}" class="inline-block px-5 py-1.5  border-[#19140035] dark:hover:border-white border text-[#1b1b18] dark:border-[#3E3E3A] hover:bg-black hover:dark:text-white rounded-sm text-sm leading-normal">
                                 S'enregistrer
                             </a>
                         @endif
@@ -59,45 +50,43 @@
                     </div>
 
                     <div class="flex justify-center">
-                        <img
-                            src="{{ asset('logo/CTHQ.png') }}"
-                            alt="CTHQ"
-                            class="w-1/2 justify-content-center rounded-lg mb-6"
-                        />
+                        <img src="{{ asset('logo/CTHQ.png') }}" alt="CTHQ" class="w-1/2 justify-content-center rounded-lg mb-6"/>
                     </div>
-                    <p class="text-center text-gray-600 dark:text-gray-400 mb-6">
-                        Centre de triage des hopitaux du Québec, une meilleure gestion de la priorité des patients !
-                    </p>
-
+                    <p class="text-center text-gray-600 dark:text-gray-400 mb-6">Centre de triage des hopitaux du Québec, une meilleure gestion de la priorité des patients !</p>
                 </div>
-
                 <div class="flex flex-col gap-8  w-full ">
-
                     <h1 class="text-3xl font-semibold">Liste de ressources</h1>
-
                     @foreach(config('ressources') as $categorie)
-
                         <div class="flex flex-col gap-1.5 ">
                             <h2 class="text-2xl mb-2">{{$categorie["nom"]}}</h2>
-
                             @foreach($categorie["items"] as $ressource)
                                 <div class="flex flex-col gap-1.5 border dark:border-gray-500 rounded-lg p-4">
                                     <h3 class="text-xl">{{$ressource["nom"]}}</h3>
-
                                     @if($ressource["site"] == "Variable")
-                                     <span><span class="font-semibold">Site Web : </span>Variable</span>
+                                     <span>
+                                         <span class="font-semibold">Site Web : </span>
+                                         Variable
+                                     </span>
                                     @else
-                                        <a href={{$ressource["site"]}}><span class="font-semibold">Site Web : </span><span class="underline">{{$ressource["site"]}}</span></a>
+                                        <a href={{$ressource["site"]}}>
+                                            <span class="font-semibold">Site Web : </span>
+                                            <span class="underline">{{$ressource["site"]}}</span>
+                                        </a>
                                     @endif
-                                    <p><span class="font-semibold">Numéro de téléphone : </span>{{$ressource["tel"]}}</p>
-                                    <p><span class="font-semibold">Description : </span>{{$ressource["desc"]}}</p>
+                                    <p>
+                                        <span class="font-semibold">Numéro de téléphone : </span>
+                                        {{$ressource["tel"]}}
+                                    </p>
+                                    <p>
+                                        <span class="font-semibold">Description : </span>
+                                        {{$ressource["desc"]}}
+                                    </p>
                                 </div>
                             @endforeach
                         </div>
                     @endforeach
                 </div>
         </main>
-
         @if (Route::has('login'))
             <div class="h-14.5 hidden lg:block"></div>
         @endif

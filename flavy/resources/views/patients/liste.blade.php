@@ -46,35 +46,51 @@
             @else
                 <div class="divide-y divide-slate-100">
                     @foreach($patients as $patient)
-                        @php
-                            $compte = $patient->compte;
-                            $visitesCount = $compte?->visites()->count() ?? 0;
-                            $derniereVisite = $compte?->visites()->latest('date_heure')->first();
-                        @endphp
                         <article class="group grid gap-5 p-6 transition hover:bg-slate-50 lg:grid-cols-[1.2fr_.8fr_.7fr_auto] lg:items-center">
                             <div class="flex items-center gap-4">
                                 <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-blue-900 to-cyan-500 text-lg font-black text-white shadow-lg">
-                                    {{ strtoupper(substr($compte->prenom ?? $patient->name ?? 'P', 0, 1) . substr($compte->nom ?? '', 0, 1)) }}
+                                    {{ $patient['initiales'] }}
                                 </div>
+
                                 <div>
-                                    <h4 class="text-lg font-black text-slate-950">{{ $compte->prenom ?? 'Prénom inconnu' }} {{ $compte->nom ?? 'Nom inconnu' }}</h4>
-                                    <p class="mt-1 text-sm text-slate-500">{{ $patient->email }}</p>
+                                    <h4 class="text-lg font-black text-slate-950">
+                                        {{ $patient['prenom'] }} {{ $patient['nom'] }}
+                                    </h4>
+
+                                    <p class="mt-1 text-sm text-slate-500">
+                                        {{ $patient['email'] }}
+                                    </p>
                                 </div>
                             </div>
 
                             <div>
-                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Date de naissance</p>
-                                <p class="mt-1 font-bold text-slate-700">{{ $compte?->date_naissance ? \Carbon\Carbon::parse($compte->date_naissance)->format('d/m/Y') : 'Non renseignée' }}</p>
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                                    Date de naissance
+                                </p>
+
+                                <p class="mt-1 font-bold text-slate-700">
+                                    {{ $patient['date_naissance'] }}
+                                </p>
                             </div>
 
                             <div>
-                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Historique</p>
-                                <p class="mt-1 font-bold text-slate-700">{{ $visitesCount }} visite(s)</p>
-                                <p class="text-xs text-slate-500">Dernière : {{ $derniereVisite?->date_heure ? \Carbon\Carbon::parse($derniereVisite->date_heure)->format('d/m/Y H:i') : 'Aucune' }}</p>
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                                    Historique
+                                </p>
+
+                                <p class="mt-1 font-bold text-slate-700">
+                                    {{ $patient['visites_count'] }} visite(s)
+                                </p>
+
+                                <p class="text-xs text-slate-500">
+                                    Dernière : {{ $patient['derniere_visite'] }}
+                                </p>
                             </div>
 
                             <div class="flex lg:justify-end">
-                                <a href="{{ route('patients.show', $patient->id) }}" class="hospital-btn inline-flex items-center justify-center">Voir dossier</a>
+                                <a href="{{ route('patients.show', $patient['id']) }}" class="hospital-btn inline-flex items-center justify-center">
+                                    Voir dossier
+                                </a>
                             </div>
                         </article>
                     @endforeach
