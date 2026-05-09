@@ -57,7 +57,7 @@
 </header>
 
 <main>
-    <section class="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
+    <section class="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[1.05fr_.95fr] lg:items-center">
         <div>
             <div class="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-5 py-2 text-sm font-black text-cyan-700">
                 <span class="h-2.5 w-2.5 rounded-full bg-cyan-500"></span>
@@ -67,8 +67,8 @@
             <h2 class="mt-6 max-w-3xl text-5xl font-black leading-[1.05] text-slate-950 lg:text-7xl">
                 Gestion moderne du
                 <span class="bg-gradient-to-r from-blue-950 to-cyan-500 bg-clip-text text-transparent">
-                        triage hospitalier
-                    </span>
+                    triage hospitalier
+                </span>
             </h2>
 
             <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
@@ -86,16 +86,22 @@
                 </a>
             </div>
         </div>
+
+        <div class="relative">
+            <div class="absolute -left-8 top-8 h-48 w-48 rounded-full bg-cyan-400/20 blur-3xl"></div>
+
+            <div class="relative overflow-hidden rounded-[2.5rem] border border-white/60 bg-white/80 p-5 shadow-[0_40px_100px_-20px_rgba(15,23,42,0.25)] backdrop-blur">
+                <div>
+                    <img src="{{ asset('logo/CTHQ.png') }}" alt="CTHQ" class="mx-auto w-full max-w-md object-contain drop-shadow-2xl">
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="ressources" class="mx-auto max-w-7xl px-6 pb-20">
         <div class="mb-10">
             <p class="hospital-badge">Assistance</p>
-
-            <h2 class="mt-4 text-5xl font-black text-slate-950">
-                Ressources disponibles
-            </h2>
-
+            <h2 class="mt-4 text-5xl font-black text-slate-950">Ressources disponibles</h2>
             <p class="mt-3 max-w-3xl text-lg text-slate-500">
                 Accès rapide aux ressources médicales, psychologiques et sociales disponibles au Québec.
             </p>
@@ -105,9 +111,7 @@
             @foreach(config('ressources') as $categorie)
                 <section class="hospital-card overflow-hidden">
                     <div class="border-b border-slate-100 bg-slate-50 px-8 py-5">
-                        <h3 class="text-3xl font-black text-slate-950">
-                            {{ $categorie['nom'] }}
-                        </h3>
+                        <h3 class="text-3xl font-black text-slate-950">{{ $categorie['nom'] }}</h3>
                     </div>
 
                     <div class="grid gap-5 p-6 lg:grid-cols-2">
@@ -115,13 +119,8 @@
                             <article class="group rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                        <h4 class="text-2xl font-black text-slate-950">
-                                            {{ $ressource['nom'] }}
-                                        </h4>
-
-                                        <p class="mt-3 text-sm leading-7 text-slate-600">
-                                            {{ $ressource['desc'] }}
-                                        </p>
+                                        <h4 class="text-2xl font-black text-slate-950">{{ $ressource['nom'] }}</h4>
+                                        <p class="mt-3 text-sm leading-7 text-slate-600">{{ $ressource['desc'] }}</p>
                                     </div>
 
                                     <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-blue-950 to-cyan-500 text-2xl text-white shadow-xl">
@@ -131,24 +130,15 @@
 
                                 <div class="mt-5 space-y-3">
                                     <div class="rounded-2xl bg-slate-50 p-4">
-                                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                                            Téléphone
-                                        </p>
-
-                                        <p class="mt-1 font-bold text-slate-800">
-                                            {{ $ressource['tel'] }}
-                                        </p>
+                                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Téléphone</p>
+                                        <p class="mt-1 font-bold text-slate-800">{{ $ressource['tel'] }}</p>
                                     </div>
 
                                     <div class="rounded-2xl bg-slate-50 p-4">
-                                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                                            Site web
-                                        </p>
+                                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Site web</p>
 
                                         @if($ressource['site'] === 'Variable')
-                                            <p class="mt-1 font-bold text-slate-800">
-                                                Variable
-                                            </p>
+                                            <p class="mt-1 font-bold text-slate-800">Variable</p>
                                         @else
                                             <a href="{{ $ressource['site'] }}" target="_blank" class="mt-1 inline-block font-bold text-cyan-700 underline underline-offset-4">
                                                 {{ $ressource['site'] }}
