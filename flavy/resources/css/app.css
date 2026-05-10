@@ -1,7 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-[x-cloak] {
-    display: none;
+[x-cloak]{display:none}
+@layer components{
+.hospital-card{@apply bg-white rounded-3xl shadow-xl shadow-blue-950/5 border border-slate-200/80;}
+.hospital-btn{@apply inline-flex items-center justify-center rounded-2xl bg-blue-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-700/20 hover:bg-blue-800 transition;}
+.hospital-btn-soft{@apply inline-flex items-center justify-center rounded-2xl bg-blue-50 px-5 py-3 text-sm font-black text-blue-800 hover:bg-blue-100 transition;}
+.hospital-input{@apply mt-1 block w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-cyan-500;}
+.hospital-label{@apply text-sm font-bold text-slate-700;}
+.hospital-badge{@apply inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-black text-cyan-700;}
 }
