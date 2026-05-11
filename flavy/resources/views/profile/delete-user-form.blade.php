@@ -1,29 +1,35 @@
 <x-action-section>
     <x-slot name="title">Supprimer le compte</x-slot>
     <x-slot name="description">Supprimez définitivement le compte et les données associées.</x-slot>
-
     <x-slot name="content">
-        <div class="rounded-3xl border border-red-100 bg-red-50 p-5">
-            <h3 class="text-xl font-black text-red-900">Zone dangereuse</h3>
-            <p class="mt-2 text-sm leading-6 text-red-700">Une fois le compte supprimé, cette action ne peut pas être annulée. Exportez les informations importantes avant de continuer.</p>
+        <div class="rounded-3xl border border-red-100 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-5">
+            <h3 class="text-xl font-black text-red-900 dark:text-red-300">Zone dangereuse</h3>
+            <p class="mt-2 text-sm leading-6 text-red-700 dark:text-red-400">Une fois le compte supprimé, cette action
+                ne peut pas être annulée. Exportez les informations importantes avant de continuer.</p>
         </div>
-
         <div class="mt-5">
-            <x-danger-button wire:click="confirmUserDeletion" wire:loading.attr="disabled">Supprimer mon compte</x-danger-button>
+            <x-danger-button wire:click="confirmUserDeletion" wire:loading.attr="disabled">Supprimer mon compte
+            </x-danger-button>
         </div>
-
         <x-dialog-modal wire:model.live="confirmingUserDeletion">
             <x-slot name="title">Supprimer le compte</x-slot>
             <x-slot name="content">
-                <p class="text-sm text-slate-600">Entrez votre mot de passe pour confirmer la suppression définitive du compte.</p>
-                <div class="mt-4" x-data="{}" x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
-                    <x-input type="password" class="mt-1 block w-3/4" autocomplete="current-password" placeholder="Mot de passe" x-ref="password" wire:model="password" wire:keydown.enter="deleteUser" />
-                    <x-input-error for="password" class="mt-2" />
+                <p class="text-sm text-slate-600 dark:text-slate-400">Entrez votre mot de passe pour confirmer la
+                    suppression définitive du compte.</p>
+                <div class="mt-4" x-data="{}"
+                     x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
+                    <x-input type="password" class="mt-1 block w-3/4" autocomplete="current-password"
+                             placeholder="Mot de passe" x-ref="password" wire:model="password"
+                             wire:keydown.enter="deleteUser"/>
+                    <x-input-error for="password" class="mt-2"/>
                 </div>
             </x-slot>
             <x-slot name="footer">
-                <x-secondary-button wire:click="$toggle('confirmingUserDeletion')" wire:loading.attr="disabled">Annuler</x-secondary-button>
-                <x-danger-button class="ms-3" wire:click="deleteUser" wire:loading.attr="disabled">Supprimer</x-danger-button>
+                <x-secondary-button wire:click="$toggle('confirmingUserDeletion')" wire:loading.attr="disabled">
+                    Annuler
+                </x-secondary-button>
+                <x-danger-button class="ms-3" wire:click="deleteUser" wire:loading.attr="disabled">Supprimer
+                </x-danger-button>
             </x-slot>
         </x-dialog-modal>
     </x-slot>
