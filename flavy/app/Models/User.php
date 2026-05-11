@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Traits\HasRoles; // <-- ajouter ceci
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -21,7 +18,7 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
-    use HasRoles; // <-- ajouter ceci
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -55,13 +52,8 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
-    public function compte()
+    public function compte(): HasOne|User
     {
         return $this->hasOne(Compte::class);
-    }
-
-    public function diagnostiques()
-    {
-        return $this->hasMany(Diagnostique::class, 'patient_id');
     }
 }

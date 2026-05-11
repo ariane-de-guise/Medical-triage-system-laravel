@@ -3,25 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Visite extends Model
 {
-    use HasFactory;
-
     protected $fillable = ['patient_id', 'docteur_id', 'diagnostique_id', 'date_heure'];
 
-    public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function patient(): BelongsTo
     {
         return $this->belongsTo(Compte::class, 'patient_id');
     }
 
-    public function docteur(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function docteur(): BelongsTo
     {
         return $this->belongsTo(Compte::class, 'docteur_id');
     }
 
-    public function diagnostique(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function diagnostique(): BelongsTo
     {
         return $this->belongsTo(Diagnostique::class);
     }

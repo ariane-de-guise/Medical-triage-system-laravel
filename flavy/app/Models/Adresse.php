@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Adresse extends Model
 {
@@ -11,8 +12,8 @@ class Adresse extends Model
 
     protected $fillable = ['code_postal', 'numero', 'province', 'rue', 'ville', 'type'];
 
-    public function comptes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function comptes(): BelongsToMany
     {
-        return $this->belongsToMany(Compte::class, 'adresse_user');
+        return $this->belongsToMany(Compte::class, 'adresses_comptes');
     }
 }

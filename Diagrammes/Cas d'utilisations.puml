@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+actor Patient
+actor Medecin
+actor Infirmière
+rectangle "Systeme de priorités" {
+usecase "Accèder au site web pour me créer un compte" as UC1
+usecase "Recevoir des notifications sur le temps d'attente" as UC2
+usecase "Consulter les renseignements sur un dossier" as UC3
+usecase "Voir la liste des patients" as UC4
+usecase "Avoir une recommandation du niveau de priorité" as UC5
+usecase "Voir l'historique des professionels qui ont consultés le patient" as UC6
+usecase "Pouvoir ajouter et modifier les informations sur le dossier" as UC7
+}
+Patient --> UC1
+Patient --> UC2
+Patient --> UC3
+Infirmière --> UC3
+Infirmière --> UC4
+Infirmière --> UC5
+Infirmière --> UC6
+Infirmière --> UC7
+Medecin --> UC3
+Medecin --> UC4
+Medecin --> UC6
+Medecin --> UC7
+UC2 <. UC1 : <<include>>
+@enduml
