@@ -6,12 +6,10 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <link rel="shortcut icon" href="{{ asset('logo/CTHQ.png') }}" type="image/x-icon">
 
-    <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css'])
     @else
@@ -23,15 +21,11 @@
 <body class="bg-slate-100 py-10 px-4 font-sans">
 
 <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-2">
-
-    <!-- Header -->
     <div class="bg-teal-700 px-8 py-6">
         <h1 class="text-2xl font-bold text-white">
 
         </h1>
     </div>
-
-    <!-- Content -->
     <div class="p-8 text-slate-700">
 
         <p class="text-base mb-6">
@@ -39,8 +33,10 @@
         </p>
 
         <p class="text-base leading-7 mb-6">
-            Nous souhaitons vous informer qu’une mise à jour a été effectuée concernant votre position dans la file d’attente.<br>
-            Pour consulter votre nouvelle position et les délais estimés, veuillez vous connecter à votre compte sur notre plateforme.
+            Nous souhaitons vous informer que vous serez le prochain patient à être traité par
+            {{trim(strtolower($user->compte->triage->file_attente->name)) == 'infirmier' ? 'l\'infirmier' : 'le médecin'}} {{$user->compte->triage->personnel->compte->prenom}} {{$user->compte->triage->personnel->compte->nom}}.
+            <br>
+            Veuillez avoir votre carte d’assurance maladie et votre carte d'hôpital à portée de main.
         </p>
 
         <p class="text-sm text-slate-600 leading-6 mb-6">
@@ -59,6 +55,10 @@
         <div class="flex justify-center w-20">
             <img src="{{asset('logo/CTHQ.png')}}" alt="CTHQ" class="w-full mt-6 rounded">
         </div>
+        <br>
+        <p class="text-xs text-slate-500">
+            L'usage du masculin dans ce message est uniquement destiné à alléger le texte et n'implique aucune discrimination envers les personnes de genre féminin.
+        </p>
 
     </div>
 
