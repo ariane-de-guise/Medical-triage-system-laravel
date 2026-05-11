@@ -4,26 +4,28 @@ namespace App\Algorithms;
 
 use App\Models\Triage;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class Email
 {
     public static function send():void
     {
-        $user = self::getPatientQueue(2);
-        Mail::send('emails.changement-queue',['user' => $user], function ($message) use ($user) {
-            $message->to($user->compte->user->email)
-                ->subject('Changement de votre position dans la file d\'attente');
+        foreach (Triage::all() as $triage) {
 
-        });
-    }
-
-    public static function getPatientQueue(int $index): Triage {
-
-            $triages = Triage::orderBy('priority')
-                ->orderBy('position')
-                ->get();
-
-            return $triages[$index];
+            if (TriageQueue::queuePosition($triage->compte->user) == 2) {
+                if ($triage->email_recu == 0) {
+                    Log::info($triage->email_recu);
+                    Mail::send('emails.changement-queue', ['user' => $triage], function ($message) use ($triage) {
+                        $message
+                            ->to($triage->compte->user->email)
+                            ->subject('Changement de votre position dans la file d\'attente');
+                    });
+                    Triage::where('compte_id', $triage->compte->id)->update(['email_recu' => 1]);
+                }
+            } else {
+                Triage::where('compte_id', $triage->compte->id)->update(['email_recu' => 0]);
+            }
+        }
     }
 }

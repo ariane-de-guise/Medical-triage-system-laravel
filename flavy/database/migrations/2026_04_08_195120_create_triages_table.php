@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('file_attente')->nullable();
             $table->integer('position');
             $table->integer('priority');
+            $table->boolean('email_recu')->default(false);
             $table->timestamps();
         });
     }

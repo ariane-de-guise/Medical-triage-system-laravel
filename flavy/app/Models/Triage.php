@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Triage extends Model
 {
-    protected $fillable = ['compte_id', 'position', 'priority', 'personnel_id', 'file_attente'];
+    protected $fillable = ['compte_id', 'position', 'priority', 'personnel_id', 'file_attente', 'email_recu'];
 
     protected $casts = [
         'file_attente' => Roles::class,
