@@ -37,7 +37,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'date_naissance' => 'required|date',
+            'date_naissance' => 'required|date|before_or_equal:today',
             'rue' => 'nullable|string|max:255',
             'numero' => 'nullable|integer',
             'ville' => 'nullable|string|max:255',
@@ -51,7 +51,9 @@ class RegisteredUserController extends Controller
             $rules['role'] = 'required|exists:roles,name';
         }
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'date_naissance.before_or_equal' => 'La date de naissance ne peut pas être dans le futur.',
+        ]);
 
         $user = null;
 

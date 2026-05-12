@@ -1,11 +1,16 @@
-<div {{ $attributes->merge(['class' => 'md:grid md:grid-cols-3 md:gap-6']) }}>
-    <x-section-title>
-        <x-slot name="title">{{ $title }}</x-slot>
-        <x-slot name="description">{{ $description }}</x-slot>
-    </x-section-title>
-
-    <div class="mt-5 md:mt-0 md:col-span-2">
-        <div class="px-4 py-5 sm:p-6 bg-white shadow sm:rounded-lg">
+<div {{ $attributes->merge(['class' => 'grid gap-6 lg:grid-cols-12']) }}>
+    <div class="lg:col-span-4">
+        <div class="hospital-card p-6 dark:bg-slate-800 dark:border-slate-700">
+            <div
+                class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#075fae] font-black mb-4">
+                ⚕
+            </div>
+            <h3 class="text-xl font-black text-slate-900 dark:text-slate-100">{{ $title }}</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{{ $description }}</p>
+        </div>
+    </div>
+    <div class="lg:col-span-8">
+        <div class="hospital-card p-6 sm:p-8 dark:bg-slate-800 dark:border-slate-700">
             {{ $content }}
         </div>
     </div>

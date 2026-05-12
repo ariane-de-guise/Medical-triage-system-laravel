@@ -67,4 +67,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
         Route::post('/patient/enqueue', [PatientController::class, 'store'])->name('patient.enqueue');
         Route::post('/patient/dequeue', [PatientController::class, 'destroy'])->name('patient.dequeue');
     });
+
+    Route::middleware(['role:admin|medecin'])->group(function () {
+        Route::get('/patients', [PatientController::class, 'liste'])->name('patients.liste');
+        Route::get('/patients/{id}', [PatientController::class, 'show'])->name('patients.show');
+    });
 });

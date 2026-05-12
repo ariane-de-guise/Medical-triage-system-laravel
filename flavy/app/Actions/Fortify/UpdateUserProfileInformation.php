@@ -29,6 +29,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'telephone' => ['nullable', 'string', 'max:20'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+        ], [
+            'date_naissance.before_or_equal' => 'La date de naissance ne peut pas être dans le futur.',
         ])->validateWithBag('updateProfileInformation');
 
         // 1️⃣ Photo
