@@ -50,6 +50,7 @@ class TriageQueue
                     'compte_id' => $compte->id,
                     'position' => $last + 1,
                     'priority' => $priority,
+                    'email_recu' => 0,
                 ];
 
                 if ($priority == 0) {
@@ -107,6 +108,7 @@ class TriageQueue
 
         if ($patient) {
             $patient->delete();
+            Email::send();
         }
     }
 
@@ -166,6 +168,7 @@ class TriageQueue
                     ->update(['docteur_id' => $practitioner->compte->id]);
             }
         }
+        Email::send();
     }
 
     /**
